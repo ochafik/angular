@@ -1,3 +1,138 @@
+<a name="2.0.0-beta.3"></a>
+# 2.0.0-beta.3 (2016-02-03)
+
+
+### Bug Fixes
+
+* **bundle:** add angular2/platform/testing/browser to SystemJS testing bundle ([ae7d2ab](https://github.com/angular/angular/commit/ae7d2ab))
+* **circle:** pre-dependencies `npm install npm` ([36a0e04](https://github.com/angular/angular/commit/36a0e04)), closes [#6777](https://github.com/angular/angular/issues/6777)
+* **dart/transform:** Handle edge cases in ReflectionRemover ([3e9b532](https://github.com/angular/angular/commit/3e9b532)), closes [#6749](https://github.com/angular/angular/issues/6749)
+* **docs:** `rxjs/add/operators/map` -> `rxjs/add/operator/map` (no 's'). ([2a302aa](https://github.com/angular/angular/commit/2a302aa))
+* **karma:** fix running karma via gulp ([27daeaf](https://github.com/angular/angular/commit/27daeaf))
+* **query:** don’t cross component boundaries ([c6adbf6](https://github.com/angular/angular/commit/c6adbf6)), closes [#6759](https://github.com/angular/angular/issues/6759)
+* **query:** update view queries that query directives in embedded views ([1f7a41c](https://github.com/angular/angular/commit/1f7a41c)), closes [#6747](https://github.com/angular/angular/issues/6747)
+* **WebWorkers:** Add support for transitionend events. ([c2a38c0](https://github.com/angular/angular/commit/c2a38c0)), closes [#6649](https://github.com/angular/angular/issues/6649)
+* **zone:** correct incorrect calls to zone ([3211938](https://github.com/angular/angular/commit/3211938))
+
+### Features
+
+* **change_detection:** allow all legal programs in the dev mode ([42231f5](https://github.com/angular/angular/commit/42231f5))
+* **dart/transform:** Generate all code into <file>.template.dart ([8c36aa8](https://github.com/angular/angular/commit/8c36aa8))
+* **debug:** replace DebugElement with new Debug DOM ([e1bf3d3](https://github.com/angular/angular/commit/e1bf3d3))
+* **ngFor:** add custom trackBy function support ([cee2318](https://github.com/angular/angular/commit/cee2318)), closes [#6779](https://github.com/angular/angular/issues/6779)
+* **upgrade:** support bindToController with binding definitions ([99e6500](https://github.com/angular/angular/commit/99e6500)), closes [#4784](https://github.com/angular/angular/issues/4784)
+* **WebWorker:** Add Router Support for WebWorker Apps ([8bea667](https://github.com/angular/angular/commit/8bea667)), closes [#3563](https://github.com/angular/angular/issues/3563)
+
+### Performance Improvements
+
+* **dart/transform:** Only process deferred libs when necessary ([f56df65](https://github.com/angular/angular/commit/f56df65)), closes [#6745](https://github.com/angular/angular/issues/6745)
+
+### BREAKING CHANGES
+
+This is a breaking change for unit tests. The API for the DebugElement
+has changed. Now, there is a DebugElement or DebugNode for every node
+in the DOM, not only nodes with an ElementRef. `componentViewChildren` is
+removed, and `childNodes` is a list of ElementNodes corresponding to every
+child in the DOM. `query` no longer takes a scope parameter, since
+the entire rendered DOM is included in the `childNodes`.
+
+Before:
+
+```
+componentFixture.debugElement.componentViewChildren[0];
+```
+
+After
+```
+// Depending on the DOM structure of your component, the
+// index may have changed or the first component child
+// may be a sub-child.
+componentFixture.debugElement.children[0];
+```
+
+Before:
+
+```
+debugElement.query(By.css('div'), Scope.all());
+```
+
+After:
+
+```
+debugElement.query(By.css('div'));
+```
+
+Before:
+
+```
+componentFixture.debugElement.elementRef;
+```
+
+After:
+
+```
+componentFixture.elementRef;
+```
+
+<a name="2.0.0-beta.2"></a>
+# 2.0.0-beta.2 (2016-01-28)
+
+
+### Bug Fixes
+
+* **bundles:** testing bundle should include browser platform ([4a41442](https://github.com/angular/angular/commit/4a41442)), closes [#6626](https://github.com/angular/angular/issues/6626)
+* **ChangeDetection:** chain expressions evaluate to the last expression (codegen) ([933a911](https://github.com/angular/angular/commit/933a911)), closes [#4782](https://github.com/angular/angular/issues/4782) [#5892](https://github.com/angular/angular/issues/5892)
+* **core:** always remove DOM listeners and stream subscriptions ([0ae7775](https://github.com/angular/angular/commit/0ae7775))
+* **Dart:** make some playground samples run with Dart Dev Compiler ([3e65d14](https://github.com/angular/angular/commit/3e65d14)), closes [#6441](https://github.com/angular/angular/issues/6441)
+* **dart/transform:** Ensure template codegen is completed sync ([5f0baaa](https://github.com/angular/angular/commit/5f0baaa)), closes [#6603](https://github.com/angular/angular/issues/6603)
+* **ddc:** router, compiler, web worker fixes for DDC ([db87bae](https://github.com/angular/angular/commit/db87bae)), closes [#6693](https://github.com/angular/angular/issues/6693)
+* **ddc:** type fixes necessary to bring DDC severe count to 0 ([4282297](https://github.com/angular/angular/commit/4282297))
+* **ddc:** use dynamic types in reflection typedefs ([c785a1e](https://github.com/angular/angular/commit/c785a1e)), closes [#6437](https://github.com/angular/angular/issues/6437)
+* **directive:** throw if output the same event more than once ([8c37b7e](https://github.com/angular/angular/commit/8c37b7e))
+* **HtmlLexer:** fix for unicode chars ([a24ee6a](https://github.com/angular/angular/commit/a24ee6a)), closes [#6036](https://github.com/angular/angular/issues/6036) [#6061](https://github.com/angular/angular/issues/6061)
+* **perf:** faster looseIdentical implementation ([761c6d0](https://github.com/angular/angular/commit/761c6d0)), closes [#6364](https://github.com/angular/angular/issues/6364)
+* **template_compiler:** Fix erroneous cycle detection ([eda4c3e](https://github.com/angular/angular/commit/eda4c3e)), closes [#6404](https://github.com/angular/angular/issues/6404) [#6474](https://github.com/angular/angular/issues/6474)
+* **testing:** remove test zone for now and rely on returned promises ([c72ed99](https://github.com/angular/angular/commit/c72ed99)), closes [#6359](https://github.com/angular/angular/issues/6359) [#6601](https://github.com/angular/angular/issues/6601)
+* **transformer:** record HostBinding annotations applied to getters ([a593ffa](https://github.com/angular/angular/commit/a593ffa)), closes [#6283](https://github.com/angular/angular/issues/6283)
+* **web_workers:** support @AngularEntrypoint in web workers ([ac85cbb](https://github.com/angular/angular/commit/ac85cbb)), closes [#6013](https://github.com/angular/angular/issues/6013)
+
+### Features
+
+* **core/application_ref:** Allow asyncronous app initializers. ([df3074f](https://github.com/angular/angular/commit/df3074f)), closes [#5929](https://github.com/angular/angular/issues/5929) [#6063](https://github.com/angular/angular/issues/6063)
+* **dart/transform:** DirectiveProcessor: do not process generated files ([78bfdf7](https://github.com/angular/angular/commit/78bfdf7)), closes [#6517](https://github.com/angular/angular/issues/6517)
+* **dart/transform:** Promote missing Directive warning to error ([47a3b4d](https://github.com/angular/angular/commit/47a3b4d)), closes [#6519](https://github.com/angular/angular/issues/6519) [#6568](https://github.com/angular/angular/issues/6568)
+* **test:** allow tests to specify the platform and application providers used ([b0cebdb](https://github.com/angular/angular/commit/b0cebdb)), closes [#5351](https://github.com/angular/angular/issues/5351) [#5585](https://github.com/angular/angular/issues/5585) [#5975](https://github.com/angular/angular/issues/5975)
+* **testability:** Expose function frameworkStabilizers ([69ae363](https://github.com/angular/angular/commit/69ae363)), closes [#5485](https://github.com/angular/angular/issues/5485)
+
+### BREAKING CHANGES
+
+* `Renderer.listen` now has to return a function that
+  removes the event listener.
+
+* TemplateRef.elementRef is now read-only.
+
+* Tests are now required to use `setBaseTestProviders`
+to set up. Assuming your tests are run on a browser, setup would change
+as follows.
+Before:
+```js
+// Somewhere in test setup
+import {BrowserDomAdapter} from 'angular2/src/platform/browser/browser_adapter';
+BrowserDomAdapter.makeCurrent
+```
+After:
+```js
+// Somewhere in the test setup
+import {setBaseTestProviders} from 'angular2/testing';
+import {
+  TEST_BROWSER_PLATFORM_PROVIDERS,
+  TEST_BROWSER_APPLICATION_PROVIDERS
+} from 'angular2/platform/testing/browser';
+setBaseTestProviders(TEST_BROWSER_PLATFORM_PROVIDERS,
+                     TEST_BROWSER_APPLICATION_PROVIDERS);
+```
+
+
 <a name="2.0.0-beta.1"></a>
 # 2.0.0-beta.1 catamorphic-involution (2016-01-08)
 
@@ -43,6 +178,7 @@
   take a native element instead of an ElementRef
 * `Renderer` interface now operates on plain native nodes,
   instead of `RenderElementRef`s or `RenderViewRef`s
+
 <a name="2.0.0-beta.0"></a>
 # 2.0.0-beta.0 somnambulant-inauguration (2015-12-15)
 
@@ -64,10 +200,7 @@
 
 ### BREAKING CHANGES
 
-* Before
-Previously Angular would run in dev prod mode by default, and you could enable the dev mode by calling enableDevMode.
-After
-Now, Angular runs in the dev mode by default, and you can enable the prod mode by calling enableProdMode.
+* Previously, Angular would run in dev prod mode by default, and you could enable the dev mode by calling enableDevMode. Now, Angular runs in the dev mode by default, and you can enable the prod mode by calling enableProdMode.
 
 
 
@@ -144,11 +277,11 @@ bundle. `ngUpgrade` has a dedicated `upgrade.js` bundle now.
 
 * `Observable` are no more re-exported from `angular2/core`
 
-    Before 
+    Before
     ```
     import {Observable} from 'angular2/core'
     ```
-    After 
+    After
     ```
     import {Observable} from 'rxjs/Observable';
     ```
@@ -369,7 +502,7 @@ import * as core from 'angular2/core';
 * Operators and Observables from RxJS (e.g. .map(), .toArray(), .toPromise(), etc ) now need to be explicitly imported (once per operator in your app)
   ```
   import {Observable} from 'rxjs/Observable';
-  import 'rxjs/add/operators/map';
+  import 'rxjs/add/operator/map';
   import 'rxjs/add/observable/interval';
 
   Observable.interval(1000).subscribe(...);
