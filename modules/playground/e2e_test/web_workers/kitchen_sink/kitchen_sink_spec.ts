@@ -1,5 +1,4 @@
 import {verifyNoBrowserErrors} from 'angular2/src/testing/e2e_util';
-import {Promise} from 'angular2/src/facade/async';
 
 describe('WebWorkers Kitchen Sink', function() {
   afterEach(() => {
@@ -15,7 +14,9 @@ describe('WebWorkers Kitchen Sink', function() {
     browser.get(URL);
 
     browser.wait(protractor.until.elementLocated(by.css(selector)), 15000);
-    expect(element.all(by.css(selector)).first().getText()).toEqual("hello world!");
+    var elem = element(by.css(selector));
+    browser.wait(protractor.until.elementTextIs(elem, 'hello world!'), 5000);
+    expect(elem.getText()).toEqual("hello world!");
 
   });
 

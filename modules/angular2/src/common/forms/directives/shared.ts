@@ -1,5 +1,5 @@
 import {ListWrapper, StringMapWrapper} from 'angular2/src/facade/collection';
-import {isBlank, isPresent, looseIdentical} from 'angular2/src/facade/lang';
+import {isBlank, isPresent, looseIdentical, hasConstructor} from 'angular2/src/facade/lang';
 import {BaseException, WrappedException} from 'angular2/src/facade/exceptions';
 
 import {ControlContainer} from './control_container';
@@ -13,6 +13,7 @@ import {DefaultValueAccessor} from './default_value_accessor';
 import {NumberValueAccessor} from './number_value_accessor';
 import {CheckboxControlValueAccessor} from './checkbox_value_accessor';
 import {SelectControlValueAccessor} from './select_control_value_accessor';
+import {RadioControlValueAccessor} from './radio_control_value_accessor';
 import {normalizeValidator} from './normalize_validator';
 
 
@@ -31,14 +32,14 @@ export function setUpControl(control: Control, dir: NgControl): void {
   dir.valueAccessor.writeValue(control.value);
 
   // view -> model
-  dir.valueAccessor.registerOnChange(newValue => {
+  dir.valueAccessor.registerOnChange((newValue: any) => {
     dir.viewToModelUpdate(newValue);
     control.updateValue(newValue, {emitModelToViewChange: false});
     control.markAsDirty();
   });
 
   // model -> view
-  control.registerOnChange(newValue => dir.valueAccessor.writeValue(newValue));
+  control.registerOnChange((newValue: any) => dir.valueAccessor.writeValue(newValue));
 
   // touched
   dir.valueAccessor.registerOnTouched(() => control.markAsTouched());
@@ -77,15 +78,17 @@ export function selectValueAccessor(dir: NgControl,
                                     valueAccessors: ControlValueAccessor[]): ControlValueAccessor {
   if (isBlank(valueAccessors)) return null;
 
-  var defaultAccessor;
-  var builtinAccessor;
-  var customAccessor;
-  valueAccessors.forEach(v => {
-    if (v instanceof DefaultValueAccessor) {
+  var defaultAccessor: ControlValueAccessor;
+  var builtinAccessor: ControlValueAccessor;
+  var customAccessor: ControlValueAccessor;
+  valueAccessors.forEach((v: ControlValueAccessor) => {
+    if (hasConstructor(v, DefaultValueAccessor)) {
       defaultAccessor = v;
 
-    } else if (v instanceof CheckboxControlValueAccessor || v instanceof NumberValueAccessor ||
-               v instanceof SelectControlValueAccessor) {
+    } else if (hasConstructor(v, CheckboxControlValueAccessor) ||
+               hasConstructor(v, NumberValueAccessor) ||
+               hasConstructor(v, SelectControlValueAccessor) ||
+               hasConstructor(v, RadioControlValueAccessor)) {
       if (isPresent(builtinAccessor))
         _throwError(dir, "More than one built-in value accessor matches");
       builtinAccessor = v;

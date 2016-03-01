@@ -15,12 +15,7 @@ import {
   PLATFORM_INITIALIZER,
   APP_INITIALIZER
 } from './application_tokens';
-import {
-  Promise,
-  PromiseWrapper,
-  PromiseCompleter,
-  ObservableWrapper
-} from 'angular2/src/facade/async';
+import {PromiseWrapper, PromiseCompleter, ObservableWrapper} from 'angular2/src/facade/async';
 import {ListWrapper} from 'angular2/src/facade/collection';
 import {TestabilityRegistry, Testability} from 'angular2/src/core/testability/testability';
 import {
@@ -255,7 +250,7 @@ export class PlatformRef_ extends PlatformRef {
         provide(ApplicationRef, {useFactory: (): ApplicationRef => app, deps: []})
       ]);
 
-      var exceptionHandler;
+      var exceptionHandler: Function;
       try {
         injector = this.injector.resolveAndCreateChild(providers);
         exceptionHandler = injector.get(ExceptionHandler);
@@ -432,7 +427,7 @@ export class ApplicationRef_ extends ApplicationRef {
       try {
         var injector: Injector = this._injector.resolveAndCreateChild(componentProviders);
         var compRefToken: Promise<ComponentRef> = injector.get(APP_COMPONENT_REF_PROMISE);
-        var tick = (componentRef) => {
+        var tick = (componentRef: ComponentRef) => {
           this._loadComponent(componentRef);
           completer.resolve(componentRef);
         };
@@ -456,32 +451,32 @@ export class ApplicationRef_ extends ApplicationRef {
     });
     return completer.promise.then(_ => {
       let c = this._injector.get(Console);
-      let modeDescription =
-          assertionsEnabled() ?
-              "in the development mode. Call enableProdMode() to enable the production mode." :
-              "in the production mode. Call enableDevMode() to enable the development mode.";
-      c.log(`Angular 2 is running ${modeDescription}`);
+      if (assertionsEnabled()) {
+        c.log(
+            "Angular 2 is running in the development mode. Call enableProdMode() to enable the production mode.");
+      }
       return _;
     });
   }
 
   /** @internal */
-  _loadComponent(ref): void {
-    var appChangeDetector = (<ElementRef_>ref.location).internalElement.parentView.changeDetector;
+  _loadComponent(componentRef: ComponentRef): void {
+    var appChangeDetector =
+        (<ElementRef_>componentRef.location).internalElement.parentView.changeDetector;
     this._changeDetectorRefs.push(appChangeDetector.ref);
     this.tick();
-    this._rootComponents.push(ref);
-    this._bootstrapListeners.forEach((listener) => listener(ref));
+    this._rootComponents.push(componentRef);
+    this._bootstrapListeners.forEach((listener) => listener(componentRef));
   }
 
   /** @internal */
-  _unloadComponent(ref): void {
-    if (!ListWrapper.contains(this._rootComponents, ref)) {
+  _unloadComponent(componentRef: ComponentRef): void {
+    if (!ListWrapper.contains(this._rootComponents, componentRef)) {
       return;
     }
     this.unregisterChangeDetector(
-        (<ElementRef_>ref.location).internalElement.parentView.changeDetector.ref);
-    ListWrapper.remove(this._rootComponents, ref);
+        (<ElementRef_>componentRef.location).internalElement.parentView.changeDetector.ref);
+    ListWrapper.remove(this._rootComponents, componentRef);
   }
 
   get injector(): Injector { return this._injector; }

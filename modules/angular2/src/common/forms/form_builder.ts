@@ -80,9 +80,10 @@ export class FormBuilder {
   }
 
   /** @internal */
-  _reduceControls(controlsConfig: any): {[key: string]: modelModule.AbstractControl} {
+  _reduceControls(controlsConfig: {[k: string]:
+                                       any}): {[key: string]: modelModule.AbstractControl} {
     var controls: {[key: string]: modelModule.AbstractControl} = {};
-    StringMapWrapper.forEach(controlsConfig, (controlConfig, controlName) => {
+    StringMapWrapper.forEach(controlsConfig, (controlConfig: any, controlName: string) => {
       controls[controlName] = this._createControl(controlConfig);
     });
     return controls;
@@ -106,21 +107,3 @@ export class FormBuilder {
     }
   }
 }
-
-/**
- * Shorthand set of providers used for building Angular forms.
- *
- * ### Example
- *
- * ```typescript
- * bootstrap(MyApp, [FORM_PROVIDERS]);
- * ```
- */
-export const FORM_PROVIDERS: Type[] = CONST_EXPR([FormBuilder]);
-
-/**
- * See {@link FORM_PROVIDERS} instead.
- *
- * @deprecated
- */
-export const FORM_BINDINGS = FORM_PROVIDERS;

@@ -1,6 +1,6 @@
 {
   "name": "angular-srcs",
-  "version": "2.0.0-beta.1",
+  "version": "2.0.0-beta.6",
   "dependencies": {
     "abbrev": {
       "version": "1.0.7",
@@ -74,19 +74,19 @@
       "resolved": "https://registry.npmjs.org/amdefine/-/amdefine-1.0.0.tgz"
     },
     "angular": {
-      "version": "1.4.8",
-      "from": "angular@>=1.4.7 <2.0.0",
-      "resolved": "https://registry.npmjs.org/angular/-/angular-1.4.8.tgz"
+      "version": "1.5.0",
+      "from": "angular@1.5.0",
+      "resolved": "https://registry.npmjs.org/angular/-/angular-1.5.0.tgz"
     },
     "angular-animate": {
-      "version": "1.4.8",
-      "from": "angular-animate@>=1.4.7 <2.0.0",
-      "resolved": "https://registry.npmjs.org/angular-animate/-/angular-animate-1.4.8.tgz"
+      "version": "1.5.0",
+      "from": "angular-animate@1.5.0",
+      "resolved": "https://registry.npmjs.org/angular-animate/-/angular-animate-1.5.0.tgz"
     },
     "angular-mocks": {
-      "version": "1.4.8",
-      "from": "angular-mocks@>=1.4.7 <2.0.0",
-      "resolved": "https://registry.npmjs.org/angular-mocks/-/angular-mocks-1.4.8.tgz"
+      "version": "1.5.0",
+      "from": "angular-mocks@1.5.0",
+      "resolved": "https://registry.npmjs.org/angular-mocks/-/angular-mocks-1.5.0.tgz"
     },
     "ansi": {
       "version": "0.3.0",
@@ -2263,6 +2263,18 @@
         }
       }
     },
+    "broccoli-file-creator": {
+      "version": "1.1.0",
+      "from": "broccoli-file-creator@latest",
+      "resolved": "https://registry.npmjs.org/broccoli-file-creator/-/broccoli-file-creator-1.1.0.tgz",
+      "dependencies": {
+        "rsvp": {
+          "version": "3.0.21",
+          "from": "rsvp@>=3.0.6 <3.1.0",
+          "resolved": "https://registry.npmjs.org/rsvp/-/rsvp-3.0.21.tgz"
+        }
+      }
+    },
     "broccoli-filter": {
       "version": "0.1.14",
       "from": "broccoli-filter@>=0.1.10 <0.2.0",
@@ -2947,6 +2959,11 @@
       "version": "4.0.1",
       "from": "dargs@>=4.0.1 <5.0.0",
       "resolved": "https://registry.npmjs.org/dargs/-/dargs-4.0.1.tgz"
+    },
+    "dart-style": {
+      "version": "0.2.6",
+      "from": "dart-style@>=0.2.6 <0.3.0",
+      "resolved": "https://registry.npmjs.org/dart-style/-/dart-style-0.2.6.tgz"
     },
     "dart2jsaas": {
       "version": "0.0.16",
@@ -7667,9 +7684,9 @@
       "resolved": "https://registry.npmjs.org/run-sequence/-/run-sequence-1.1.5.tgz"
     },
     "rxjs": {
-      "version": "5.0.0-beta.0",
-      "from": "https://registry.npmjs.org/rxjs/-/rxjs-5.0.0-beta.0.tgz",
-      "resolved": "https://registry.npmjs.org/rxjs/-/rxjs-5.0.0-beta.0.tgz"
+      "version": "5.0.0-beta.2",
+      "from": "rxjs@5.0.0-beta.2",
+      "resolved": "https://registry.npmjs.org/rxjs/-/rxjs-5.0.0-beta.2.tgz"
     },
     "sass-graph": {
       "version": "2.0.1",
@@ -7806,7 +7823,8 @@
       "dependencies": {
         "mime-db": {
           "version": "1.20.0",
-          "from": "mime-db@>=1.20.0 <1.21.0"
+          "from": "mime-db@1.20.0",
+          "resolved": "https://registry.npmjs.org/mime-db/-/mime-db-1.20.0.tgz"
         },
         "mime-types": {
           "version": "2.1.8",
@@ -8518,9 +8536,9 @@
       }
     },
     "ts2dart": {
-      "version": "0.7.19",
-      "from": "ts2dart@>=0.7.18 <0.8.0",
-      "resolved": "https://registry.npmjs.org/ts2dart/-/ts2dart-0.7.19.tgz",
+      "version": "0.7.24",
+      "from": "ts2dart@0.7.24",
+      "resolved": "https://registry.npmjs.org/ts2dart/-/ts2dart-0.7.24.tgz",
       "dependencies": {
         "source-map": {
           "version": "0.4.4",
@@ -8699,7 +8717,7 @@
     },
     "typescript": {
       "version": "1.7.5",
-      "from": "typescript@>=1.7.3 <2.0.0",
+      "from": "typescript@>=1.7.0 <1.8.0",
       "resolved": "https://registry.npmjs.org/typescript/-/typescript-1.7.5.tgz"
     },
     "ua-parser-js": {
@@ -9291,9 +9309,8 @@
       }
     },
     "zone.js": {
-      "version": "0.5.11",
-      "from": "zone.js@0.5.11",
-      "resolved": "https://registry.npmjs.org/zone.js/-/zone.js-0.5.11.tgz"
+      "version": "0.5.15",
+      "from": "zone.js@0.5.15"
     }
   }
 }

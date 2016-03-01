@@ -4,6 +4,7 @@ import {
   proxy,
   it,
   iit,
+  xit,
   ddescribe,
   expect,
   inject,
@@ -12,7 +13,7 @@ import {
 } from 'angular2/testing_internal';
 import {SpyRouterOutlet} from './spies';
 import {Type} from 'angular2/src/facade/lang';
-import {Promise, PromiseWrapper, ObservableWrapper} from 'angular2/src/facade/async';
+import {PromiseWrapper, ObservableWrapper} from 'angular2/src/facade/async';
 import {ListWrapper} from 'angular2/src/facade/collection';
 
 import {Router, RootRouter} from 'angular2/src/router/router';
@@ -100,24 +101,26 @@ export function main() {
        }));
 
     // See https://github.com/angular/angular/issues/5590
-    it('should replace history when triggered by a hashchange with a redirect',
-       inject([AsyncTestCompleter], (async) => {
-         var outlet = makeDummyOutlet();
+    // This test is disabled because it is flaky.
+    // TODO: bford. make this test not flaky and reenable it.
+    xit('should replace history when triggered by a hashchange with a redirect',
+        inject([AsyncTestCompleter], (async) => {
+          var outlet = makeDummyOutlet();
 
-         router.registerPrimaryOutlet(outlet)
-             .then((_) => router.config([
-               new Redirect({path: '/a', redirectTo: ['B']}),
-               new Route({path: '/b', component: DummyComponent, name: 'B'})
-             ]))
-             .then((_) => {
-               router.subscribe((_) => {
-                 expect(location.urlChanges).toEqual(['hash: a', 'replace: /b']);
-                 async.done();
-               });
+          router.registerPrimaryOutlet(outlet)
+              .then((_) => router.config([
+                new Redirect({path: '/a', redirectTo: ['B']}),
+                new Route({path: '/b', component: DummyComponent, name: 'B'})
+              ]))
+              .then((_) => {
+                router.subscribe((_) => {
+                  expect(location.urlChanges).toEqual(['hash: a', 'replace: /b']);
+                  async.done();
+                });
 
-               location.simulateHashChange('a');
-             });
-       }));
+                location.simulateHashChange('a');
+              });
+        }));
 
     it('should push history when triggered by a hashchange without a redirect',
        inject([AsyncTestCompleter], (async) => {

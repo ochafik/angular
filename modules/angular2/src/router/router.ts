@@ -1,4 +1,4 @@
-import {Promise, PromiseWrapper, EventEmitter, ObservableWrapper} from 'angular2/src/facade/async';
+import {PromiseWrapper, EventEmitter, ObservableWrapper} from 'angular2/src/facade/async';
 import {Map, StringMapWrapper, MapWrapper, ListWrapper} from 'angular2/src/facade/collection';
 import {isBlank, isString, isPresent, Type, isArray} from 'angular2/src/facade/lang';
 import {BaseException, WrappedException} from 'angular2/src/facade/exceptions';
@@ -34,6 +34,7 @@ let _resolveToFalse = PromiseWrapper.resolve(false);
  * `Instruction`.
  * The router uses the `RouteRegistry` to get an `Instruction`.
  */
+@Injectable()
 export class Router {
   navigating: boolean = false;
   lastNavigationAttempt: string;
@@ -438,7 +439,7 @@ export class RootRouter extends Router {
                   }
                   var emitPath = instruction.toUrlPath();
                   var emitQuery = instruction.toUrlQuery();
-                  if (emitPath.length > 0) {
+                  if (emitPath.length > 0 && emitPath[0] != '/') {
                     emitPath = '/' + emitPath;
                   }
 
@@ -465,7 +466,7 @@ export class RootRouter extends Router {
   commit(instruction: Instruction, _skipLocationChange: boolean = false): Promise<any> {
     var emitPath = instruction.toUrlPath();
     var emitQuery = instruction.toUrlQuery();
-    if (emitPath.length > 0) {
+    if (emitPath.length > 0 && emitPath[0] != '/') {
       emitPath = '/' + emitPath;
     }
     var promise = super.commit(instruction);
