@@ -17,6 +17,7 @@ import {
   HtmlElementAst,
   HtmlAttrAst,
   HtmlTextAst,
+  HtmlCommentAst,
   htmlVisitAll
 } from 'angular2/src/compiler/html_ast';
 import {ParseError, ParseLocation, ParseSourceSpan} from 'angular2/src/compiler/parse_util';
@@ -233,9 +234,9 @@ export function main() {
       });
 
       describe('comments', () => {
-        it('should ignore comments', () => {
+        it('should preserve comments', () => {
           expect(humanizeDom(parser.parse('<!-- comment --><div></div>', 'TestComp')))
-              .toEqual([[HtmlElementAst, 'div', 0]]);
+              .toEqual([[HtmlCommentAst, 'comment', 0], [HtmlElementAst, 'div', 0]]);
         });
       });
 
@@ -328,10 +329,10 @@ function humanizeErrors(errors: ParseError[]): any[] {
   return errors.map(error => {
     if (error instanceof HtmlTreeError) {
       // Parser errors
-      return [<any>error.elementName, error.msg, humanizeLineColumn(error.location)];
+      return [<any>error.elementName, error.msg, humanizeLineColumn(error.span.start)];
     }
     // Tokenizer errors
-    return [(<any>error).tokenType, error.msg, humanizeLineColumn(error.location)];
+    return [(<any>error).tokenType, error.msg, humanizeLineColumn(error.span.start)];
   });
 }
 
@@ -358,6 +359,12 @@ class Humanizer implements HtmlAstVisitor {
 
   visitText(ast: HtmlTextAst, context: any): any {
     var res = this._appendContext(ast, [HtmlTextAst, ast.value, this.elDepth]);
+    this.result.push(res);
+    return null;
+  }
+
+  visitComment(ast: HtmlCommentAst, context: any): any {
+    var res = this._appendContext(ast, [HtmlCommentAst, ast.value, this.elDepth]);
     this.result.push(res);
     return null;
   }

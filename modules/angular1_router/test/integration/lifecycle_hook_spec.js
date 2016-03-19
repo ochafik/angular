@@ -351,7 +351,7 @@ describe('Navigation lifecycle', function () {
 
     expect(spy).toHaveBeenCalled();
     var args = spy.calls.mostRecent().args;
-    expect(args[0].params).toEqual({name: 'brian'});
+    expect(args[0].params).toEqual(jasmine.objectContaining({name: 'brian'}));
     expect(args[1]).toBe($http);
   }));
 
@@ -466,10 +466,10 @@ describe('Navigation lifecycle', function () {
     }
 
     if (options.$canActivate) {
-      factory.$canActivate = options.$canActivate;
+      controller.$canActivate = options.$canActivate;
     }
     if (options.$routeConfig) {
-      factory.$routeConfig = options.$routeConfig;
+      controller.$routeConfig = options.$routeConfig;
     }
 
     $compileProvider.directive(name, factory);

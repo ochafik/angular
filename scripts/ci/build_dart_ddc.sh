@@ -11,10 +11,10 @@ source $SCRIPT_DIR/env_dart.sh
 cd $SCRIPT_DIR/../..
 
 # Variables
-DDC_TOTAL_WARNING_CAP="1000"
-DDC_TOTAL_ERROR_CAP="11"
+DDC_TOTAL_WARNING_CAP="210"
+DDC_TOTAL_ERROR_CAP="0"
 DDC_DIR=`pwd`/tmp/dev_compiler
-DDC_VERSION="0.1.14"
+DDC_VERSION="0.1.20"
 
 # Get DDC
 mkdir -p tmp
@@ -26,7 +26,6 @@ git clone https://github.com/dart-lang/dev_compiler.git tmp/dev_compiler
 
 # Convert TypeScript to Dart
 ./node_modules/.bin/gulp build/packages.dart
-./node_modules/.bin/gulp build.dart.material.css
 ./node_modules/.bin/gulp build/pubspec.dart
 node ./scripts/ci/dart_ddc/pubspec_for_ddc.js \
     --pubspec-file=dist/dart/playground/pubspec.yaml
@@ -45,14 +44,6 @@ $DART_SDK/bin/dart $DDC_DIR/bin/dartdevc.dart \
   src/hash_routing/index.dart \
   src/hello_world/index.dart \
   src/key_events/index.dart \
-  src/material/button/index.dart \
-  src/material/checkbox/index.dart \
-  src/material/dialog/index.dart \
-  src/material/grid_list/index.dart \
-  src/material/input/index.dart \
-  src/material/progress-linear/index.dart \
-  src/material/radio/index.dart \
-  src/material/switcher/index.dart \
   src/model_driven_forms/index.dart \
   src/observable_models/index.dart \
   src/order_management/index.dart \
@@ -78,21 +69,27 @@ then
 fi
 
 cat $LOG_FILE
-WARNING_COUNT=`cat $LOG_FILE | wc -l | sed -e 's/^[[:space:]]*//'`
+EXIT_CODE=0
+
+# TODO remove  `grep -v template.dart` after Tobias new compiler lands.
+
+WARNING_COUNT=$(cat $LOG_FILE | grep -E '^warning.*' | grep -v template.dart | wc -l | sed -e 's/^[[:space:]]*//' || true)
+ERROR_COUNT=$(cat $LOG_FILE | grep -E '^severe.*' | wc -l | sed -e 's/^[[:space:]]*//' || true)
+
+
+if [[ "$ERROR_COUNT" -gt "$DDC_TOTAL_ERROR_CAP" ]]
+then
+  echo "Found severe errors in angular2 package"
+  EXIT_CODE=1
+fi
 
 if [[ "$WARNING_COUNT" -gt "$DDC_TOTAL_WARNING_CAP" ]]
 then
   echo "Too many warnings: $WARNING_COUNT"
-  exit 1
+  EXIT_CODE=1
 else
   echo "Warning count ok"
 fi
 
-ERROR_COUNT=`cat $LOG_FILE | grep -E '^severe.*' | wc -l | sed -e 's/^[[:space:]]*//'`
-if [[ "$ERROR_COUNT" -gt "$DDC_TOTAL_ERROR_CAP" ]]
-then
-  echo "Found severe errors in angular2 package"
-  exit 1
-fi
-
 echo 'Dart DDC build finished'
+exit $EXIT_CODE

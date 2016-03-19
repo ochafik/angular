@@ -20,7 +20,6 @@ import {
   Injector,
   ViewMetadata,
   Component,
-  View,
   Injectable,
   ElementRef
 } from 'angular2/core';
@@ -102,6 +101,7 @@ export function main() {
       var domRootRenderer = uiInjector.get(DomRootRenderer);
       workerRenderStore = new RenderStore();
       return [
+        Serializer,
         provide(ChangeDetectorGenConfig,
                 {useValue: new ChangeDetectorGenConfig(true, true, false)}),
         provide(RenderStore, {useValue: workerRenderStore}),
@@ -256,8 +256,7 @@ export function main() {
 }
 
 
-@Component({selector: 'my-comp'})
-@View({directives: []})
+@Component({selector: 'my-comp', directives: []})
 @Injectable()
 class MyComp {
   ctxProp: string;

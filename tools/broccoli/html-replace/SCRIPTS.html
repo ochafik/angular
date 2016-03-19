@@ -3,7 +3,6 @@
 <script>
   var scriptUrls;
   var loadRuntimePackages = [
-    'angular2_material',
     'benchmarks',
     'playground',
     // TODO(rado): These helpers don't end up in the bundle, thus they should
@@ -27,7 +26,7 @@
     loadRuntimePackages.push('angular2');
     scriptUrls = [
       'Reflect.js',
-      'zone-microtask.js',
+      'zone.js',
       'long-stack-trace-zone.js'
     ];
   }
@@ -45,5 +44,5 @@
 </script>
 <script>
   var filename = '@@PATH/@@FILENAME';
-  System.import(filename).then(function(m) { m.main(); }, console.error.bind(console));
+  System.import(filename).then(function(m) { m.main && m.main(); }, console.error.bind(console));
 </script>

@@ -41,6 +41,7 @@ import {
   HtmlElementAst,
   HtmlAttrAst,
   HtmlTextAst,
+  HtmlCommentAst,
   htmlVisitAll
 } from './html_ast';
 
@@ -79,7 +80,7 @@ var TEXT_CSS_SELECTOR = CssSelector.parse('*')[0];
 export const TEMPLATE_TRANSFORMS = CONST_EXPR(new OpaqueToken('TemplateTransforms'));
 
 export class TemplateParseError extends ParseError {
-  constructor(message: string, location: ParseLocation) { super(location, message); }
+  constructor(message: string, span: ParseSourceSpan) { super(span, message); }
 }
 
 @Injectable()
@@ -128,7 +129,7 @@ class TemplateParseVisitor implements HtmlAstVisitor {
   }
 
   private _reportError(message: string, sourceSpan: ParseSourceSpan) {
-    this.errors.push(new TemplateParseError(message, sourceSpan.start));
+    this.errors.push(new TemplateParseError(message, sourceSpan));
   }
 
   private _parseInterpolation(value: string, sourceSpan: ParseSourceSpan): ASTWithSource {
@@ -208,6 +209,8 @@ class TemplateParseVisitor implements HtmlAstVisitor {
   visitAttr(ast: HtmlAttrAst, contex: any): any {
     return new AttrAst(ast.name, ast.value, ast.sourceSpan);
   }
+
+  visitComment(ast: HtmlCommentAst, context: any): any { return null; }
 
   visitElement(element: HtmlElementAst, component: Component): any {
     var nodeName = element.name;
@@ -505,7 +508,7 @@ class TemplateParseVisitor implements HtmlAstVisitor {
                                            sourceSpan: ParseSourceSpan,
                                            targetPropertyAsts: BoundElementPropertyAst[]) {
     if (isPresent(hostProps)) {
-      StringMapWrapper.forEach(hostProps, (expression, propName) => {
+      StringMapWrapper.forEach(hostProps, (expression: string, propName: string) => {
         var exprAst = this._parseBinding(expression, sourceSpan);
         targetPropertyAsts.push(
             this._createElementPropertyAst(elementName, propName, exprAst, sourceSpan));
@@ -517,7 +520,7 @@ class TemplateParseVisitor implements HtmlAstVisitor {
                                         sourceSpan: ParseSourceSpan,
                                         targetEventAsts: BoundEventAst[]) {
     if (isPresent(hostListeners)) {
-      StringMapWrapper.forEach(hostListeners, (expression, propName) => {
+      StringMapWrapper.forEach(hostListeners, (expression: string, propName: string) => {
         this._parseEvent(propName, expression, sourceSpan, [], targetEventAsts);
       });
     }
@@ -645,7 +648,7 @@ class TemplateParseVisitor implements HtmlAstVisitor {
     var allDirectiveEvents = new Set<string>();
     directives.forEach(directive => {
       StringMapWrapper.forEach(directive.directive.outputs,
-                               (eventName, _) => { allDirectiveEvents.add(eventName); });
+                               (eventName: string, _) => { allDirectiveEvents.add(eventName); });
     });
     events.forEach(event => {
       if (isPresent(event.target) || !SetWrapper.has(allDirectiveEvents, event.name)) {
@@ -676,6 +679,7 @@ class NonBindableVisitor implements HtmlAstVisitor {
     return new ElementAst(ast.name, htmlVisitAll(this, ast.attrs), [], [], [], [], children,
                           ngContentIndex, ast.sourceSpan);
   }
+  visitComment(ast: HtmlCommentAst, context: any): any { return null; }
   visitAttr(ast: HtmlAttrAst, context: any): AttrAst {
     return new AttrAst(ast.name, ast.value, ast.sourceSpan);
   }

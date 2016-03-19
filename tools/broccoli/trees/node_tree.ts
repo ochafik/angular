@@ -36,6 +36,7 @@ module.exports = function makeNodeTree(projects, destinationPath) {
   let ambientTypings = [
     'angular2/typings/hammerjs/hammerjs.d.ts',
     'angular2/typings/node/node.d.ts',
+    'node_modules/zone.js/dist/zone.js.d.ts',
     'angular2/manual_typings/globals.d.ts',
     'angular2/typings/es6-collections/es6-collections.d.ts',
     'angular2/typings/es6-promise/es6-promise.d.ts'
@@ -72,7 +73,7 @@ module.exports = function makeNodeTree(projects, destinationPath) {
       'angular2/test/common/forms/**',
 
       // we call browser's bootstrap
-      'angular2/test/router/route_config_spec.ts',
+      'angular2/test/router/route_config/route_config_spec.ts',
       'angular2/test/router/integration/bootstrap_spec.ts',
 
       // we check the public api by importing angular2/angular2

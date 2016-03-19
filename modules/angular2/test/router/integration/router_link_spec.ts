@@ -22,7 +22,7 @@ import {NumberWrapper} from 'angular2/src/facade/lang';
 import {PromiseWrapper} from 'angular2/src/facade/async';
 import {ListWrapper} from 'angular2/src/facade/collection';
 
-import {provide, Component, View, DirectiveResolver} from 'angular2/core';
+import {provide, Component, DirectiveResolver} from 'angular2/core';
 
 import {SpyLocation} from 'angular2/src/mock/location_mock';
 import {
@@ -43,13 +43,14 @@ import {RootRouter} from 'angular2/src/router/router';
 
 import {DOM} from 'angular2/src/platform/dom/dom_adapter';
 import {TEMPLATE_TRANSFORMS} from 'angular2/compiler';
-import {RouterLinkTransform} from 'angular2/src/router/router_link_transform';
+import {RouterLinkTransform} from 'angular2/src/router/directives/router_link_transform';
 
 export function main() {
   describe('routerLink directive', function() {
     var tcb: TestComponentBuilder;
     var fixture: ComponentFixture;
-    var router, location;
+    var router: Router;
+    var location: Location;
 
     beforeEachProviders(() => [
       RouteRegistry,
@@ -60,24 +61,22 @@ export function main() {
       provide(TEMPLATE_TRANSFORMS, {useClass: RouterLinkTransform, multi: true})
     ]);
 
-    beforeEach(inject([TestComponentBuilder, Router, Location], (tcBuilder, rtr, loc) => {
-      tcb = tcBuilder;
-      router = rtr;
-      location = loc;
-    }));
+    beforeEach(inject([TestComponentBuilder, Router, Location],
+                      (tcBuilder, rtr: Router, loc: Location) => {
+                        tcb = tcBuilder;
+                        router = rtr;
+                        location = loc;
+                      }));
 
     function compile(template: string = "<router-outlet></router-outlet>") {
-      return tcb.overrideView(MyComp, new View({
-                                template: ('<div>' + template + '</div>'),
-                                directives: [RouterOutlet, RouterLink]
-                              }))
+      return tcb.overrideTemplate(MyComp, ('<div>' + template + '</div>'))
           .createAsync(MyComp)
           .then((tc) => { fixture = tc; });
     }
 
     it('should generate absolute hrefs that include the base href',
        inject([AsyncTestCompleter], (async) => {
-         location.setBaseHref('/my/base');
+         (<SpyLocation>location).setBaseHref('/my/base');
          compile('<a href="hello" [routerLink]="[\'./User\']"></a>')
              .then((_) => router.config(
                        [new Route({path: '/user', component: UserCmp, name: 'User'})]))
@@ -345,7 +344,7 @@ export function main() {
 
                  // router navigation is async.
                  router.subscribe((_) => {
-                   expect(location.urlChanges).toEqual(['/user']);
+                   expect((<SpyLocation>location).urlChanges).toEqual(['/user']);
                    async.done();
                  });
                });
@@ -353,7 +352,7 @@ export function main() {
 
       it('should navigate to link hrefs in presence of base href',
          inject([AsyncTestCompleter], (async) => {
-           location.setBaseHref('/base');
+           (<SpyLocation>location).setBaseHref('/base');
            compile('<a href="hello" [routerLink]="[\'./User\']"></a>')
                .then((_) => router.config(
                          [new Route({path: '/user', component: UserCmp, name: 'User'})]))
@@ -367,7 +366,7 @@ export function main() {
 
                  // router navigation is async.
                  router.subscribe((_) => {
-                   expect(location.urlChanges).toEqual(['/base/user']);
+                   expect((<SpyLocation>location).urlChanges).toEqual(['/base/user']);
                    async.done();
                  });
                });
@@ -380,7 +379,7 @@ function getHref(tc: ComponentFixture) {
   return DOM.getAttribute(tc.debugElement.query(By.css('a')).nativeElement, 'href');
 }
 
-@Component({selector: 'my-comp'})
+@Component({selector: 'my-comp', template: '', directives: [ROUTER_DIRECTIVES]})
 class MyComp {
   name;
 }

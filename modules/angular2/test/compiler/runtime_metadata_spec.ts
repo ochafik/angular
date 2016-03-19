@@ -18,7 +18,6 @@ import {RuntimeMetadataResolver} from 'angular2/src/compiler/runtime_metadata';
 import {LifecycleHooks, LIFECYCLE_HOOKS_VALUES} from 'angular2/src/core/linker/interfaces';
 import {
   Component,
-  View,
   Directive,
   ViewEncapsulation,
   ChangeDetectionStrategy,
@@ -72,8 +71,7 @@ export function main() {
          inject([RuntimeMetadataResolver], (resolver: RuntimeMetadataResolver) => {
            var value: string =
                resolver.getDirectiveMetadata(ComponentWithoutModuleId).type.moduleUrl;
-           var expectedEndValue =
-               IS_DART ? 'base/dist/dart/angular2/test/compiler/runtime_metadata_spec.dart' : './';
+           var expectedEndValue = IS_DART ? 'test/compiler/runtime_metadata_spec.dart' : './';
            expect(value.endsWith(expectedEndValue)).toBe(true);
          }));
     });
@@ -126,9 +124,7 @@ class ComponentWithoutModuleId {
   },
   exportAs: 'someExportAs',
   moduleId: 'someModuleId',
-  changeDetection: ChangeDetectionStrategy.CheckAlways
-})
-@View({
+  changeDetection: ChangeDetectionStrategy.CheckAlways,
   template: 'someTemplate',
   templateUrl: 'someTemplateUrl',
   encapsulation: ViewEncapsulation.Emulated,

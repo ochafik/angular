@@ -124,7 +124,7 @@ class _CodegenState {
     var names = new CodegenNameUtil(
         protoRecords, eventBindings, def.directiveRecords, '$genPrefix$_UTIL');
     var logic = new CodegenLogicUtil(
-        names, '$genPrefix$_UTIL', '$genPrefix$_STATE', def.strategy);
+        names, '$genPrefix$_UTIL', '$genPrefix$_STATE');
     return new _CodegenState._(
         genPrefix,
         def.id,
@@ -225,7 +225,7 @@ class _CodegenState {
     List<String> codes = [];
     _endOfBlockIdxs.clear();
 
-    ListWrapper.forEachWithIndex(eb.records, (_, i) {
+    ListWrapper.forEachWithIndex(eb.records, (ProtoRecord _, int i) {
       var code;
       var r = eb.records[i];
 

@@ -15,7 +15,7 @@ import {
   xit
 } from 'angular2/testing_internal';
 
-import {provide, Component, View, Injector, Inject} from 'angular2/core';
+import {provide, Component, Injector, Inject} from 'angular2/core';
 import {PromiseWrapper} from 'angular2/src/facade/async';
 
 import {Router, RouterOutlet, RouterLink, RouteParams, RouteData, Location} from 'angular2/router';
@@ -25,7 +25,7 @@ import {
   AuxRoute,
   AsyncRoute,
   Redirect
-} from 'angular2/src/router/route_config_decorator';
+} from 'angular2/src/router/route_config/route_config_decorator';
 
 import {TEST_ROUTER_PROVIDERS, RootCmp, compile} from './util';
 
