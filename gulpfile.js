@@ -132,7 +132,8 @@ var CONFIG = {
       dev: {es6: 'dist/js/dev/es6', es5: 'dist/js/dev/es5'},
       prod: {es6: 'dist/js/prod/es6', es5: 'dist/js/prod/es5'},
       cjs: 'dist/js/cjs',
-      dart2js: 'dist/js/dart2js'
+      dart2js: 'dist/js/dart2js',
+      dart_dev_compiler: 'dist/js/ddc'
     },
     dart: 'dist/dart',
     docs: 'dist/docs',
@@ -369,6 +370,10 @@ function jsServeDartJs() {
   return jsserve(gulp, gulpPlugins, {path: CONFIG.dest.js.dart2js, port: 8002})();
 }
 
+function jsServeDartDevCompiler() {
+  return jsserve(gulp, gulpPlugins, {path: CONFIG.dest.js.dart_dev_compiler, port: 8003})();
+}
+
 function proxyServeDart() {
   return jsserve(gulp, gulpPlugins, {
     port: 8002,
@@ -406,6 +411,8 @@ gulp.task('serve.e2e.prod', ['build.js.prod', 'build.js.cjs'], function(neverDon
 });
 
 gulp.task('serve.js.dart2js', jsServeDartJs);
+
+gulp.task('serve.js.ddc', jsServeDartDevCompiler);
 
 gulp.task('!proxyServeDart', proxyServeDart);
 
@@ -977,18 +984,35 @@ gulp.task('static-checks', ['!build.tools'], function(done) {
 // Make sure the two typings tests are isolated, by running this one in a tempdir
 var tmpdir = path.join(os.tmpdir(), 'test.typings', new Date().getTime().toString());
 gulp.task('!pre.test.typings.layoutNodeModule', ['build.js.cjs'], function() {
-  return gulp.src(['dist/js/cjs/angular2/**/*', 'node_modules/rxjs/**'], {base: 'dist/js/cjs'})
+  return gulp.src(['dist/js/cjs/angular2/**/*', 'node_modules/rxjs/**/*'], {base: 'dist/js/cjs'})
       .pipe(gulp.dest(path.join(tmpdir, 'node_modules')));
 });
+
+gulp.task('!pre.test.typings.copyDeps', function() {
+  return gulp.src(
+                 [
+                   'modules/angular2/typings/angular-protractor/*.ts',
+                   'modules/angular2/typings/jasmine/*.ts',
+                   'modules/angular2/typings/selenium-webdriver/*.ts',
+                 ],
+                 {base: 'modules/angular2/typings'})
+      .pipe(gulp.dest(tmpdir));
+});
+
 gulp.task('!pre.test.typings.copyTypingsSpec', function() {
-  return gulp.src(['typing_spec/*.ts'], {base: 'typing_spec'}).pipe(gulp.dest(tmpdir));
+  return gulp.src(['modules/angular2/examples/**/*.ts']).pipe(gulp.dest(tmpdir));
 });
 
 gulp.task('test.typings',
-          ['!pre.test.typings.layoutNodeModule', '!pre.test.typings.copyTypingsSpec'], function() {
+          [
+            '!pre.test.typings.layoutNodeModule',
+            '!pre.test.typings.copyTypingsSpec',
+            '!pre.test.typings.copyDeps'
+          ],
+          function() {
             var tsc = require('gulp-typescript');
 
-            return gulp.src([tmpdir + '/*.ts'])
+            return gulp.src([tmpdir + '/**/*.ts', '!' + tmpdir + '/node_modules/**/*'])
                 .pipe(tsc({
                   target: 'ES6',
                   module: 'commonjs',
@@ -1069,25 +1093,26 @@ gulp.task('!build.tools', function() {
                    .pipe(tsc({
                      target: 'ES5',
                      module: 'commonjs',
+                     declaration: true,
                      // Don't use the version of typescript that gulp-typescript depends on
                      // see https://github.com/ivogabe/gulp-typescript#typescript-version
                      typescript: require('typescript')
-                   }))
-                   .on('error',
-                       function(error) {
-                         // nodejs doesn't propagate errors from the src stream into the final
-                         // stream so we are
-                         // forwarding the error into the final stream
-                         stream.emit('error', error);
-                       })
-                   .pipe(sourcemaps.write('.'))
-                   .pipe(gulp.dest('dist/tools'))
-                   .on('end', function() {
-                     var AngularBuilder =
-                         require('./dist/tools/broccoli/angular_builder').AngularBuilder;
-                     angularBuilder =
-                         new AngularBuilder({outputPath: 'dist', dartSDK: DART_SDK, logs: logs});
-                   });
+                   }));
+  stream =
+      merge2([stream.js.pipe(gulp.dest('dist/tools')), stream.dts.pipe(gulp.dest('dist/tools'))])
+          .on('error',
+              function(error) {
+                // nodejs doesn't propagate errors from the src stream into the final
+                // stream so we are
+                // forwarding the error into the final stream
+                stream.emit('error', error);
+              })
+          .pipe(sourcemaps.write('.'))
+          .on('end', function() {
+            var AngularBuilder = require('./dist/tools/broccoli/angular_builder').AngularBuilder;
+            angularBuilder =
+                new AngularBuilder({outputPath: 'dist', dartSDK: DART_SDK, logs: logs});
+          });
 
   return stream;
 });

@@ -4,8 +4,9 @@ import 'package:barback/barback.dart';
 import 'annotation_matcher.dart';
 import 'mirror_mode.dart';
 import 'options.dart';
+import './url_resolver.dart';
 
-  TransformerOptions parseBarbackSettings(BarbackSettings settings) {
+TransformerOptions parseBarbackSettings(BarbackSettings settings) {
   var config = settings.configuration;
   var entryPoints = _readStringList(config, ENTRY_POINT_PARAM);
   var initReflector =
@@ -43,6 +44,7 @@ import 'options.dart';
       inlineViews: _readBool(config, INLINE_VIEWS_PARAM, defaultValue: false),
       lazyTransformers:
           _readBool(config, LAZY_TRANSFORMERS, defaultValue: false),
+      translations: _readAssetId(config, TRANSLATIONS),
       formatCode: formatCode);
 }
 
@@ -50,6 +52,14 @@ bool _readBool(Map config, String paramName, {bool defaultValue}) {
   return config.containsKey(paramName)
       ? config[paramName] != false
       : defaultValue;
+}
+
+AssetId _readAssetId(Map config, String paramName) {
+  if (config.containsKey(paramName)) {
+    return fromUri(config[paramName]);
+  } else {
+    return null;
+  }
 }
 
 /// Cribbed from the polymer project.
