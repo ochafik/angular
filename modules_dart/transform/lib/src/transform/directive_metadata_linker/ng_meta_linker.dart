@@ -24,7 +24,7 @@ import 'ng_deps_linker.dart';
 /// `ngMetas` - in memory cache of linked ngMeta files
 Future<NgMeta> linkDirectiveMetadata(AssetReader reader, AssetId summaryAssetId,
     AssetId metaAssetId, Map<String, String> resolvedIdentifiers,
-    [Map<AssetId, NgMeta> ngMetas]) async {
+    [bool errorOnMissingIdentifiers = true, Map<AssetId, NgMeta> ngMetas]) async {
   if (ngMetas == null) ngMetas = {};
 
   var ngMeta = await _readNgMeta(reader, summaryAssetId, ngMetas);
@@ -33,7 +33,7 @@ Future<NgMeta> linkDirectiveMetadata(AssetReader reader, AssetId summaryAssetId,
   await Future.wait([
     linkNgDeps(ngMeta.ngDeps, reader, summaryAssetId, _urlResolver),
     logElapsedAsync(() async {
-      final linker = new _Linker(reader, ngMetas, resolvedIdentifiers);
+      final linker = new _Linker(reader, ngMetas, resolvedIdentifiers, errorOnMissingIdentifiers);
       await linker.linkRecursive(ngMeta, metaAssetId, new Set<AssetId>());
       return ngMeta;
     }, operationName: 'linkDirectiveMetadata', assetId: summaryAssetId)
@@ -59,8 +59,9 @@ class _Linker {
   final AssetReader reader;
   final Map<AssetId, NgMeta> ngMetas;
   final Map<String, String> resolvedIdentifiers;
+  final bool errorOnMissingIdentifiers;
 
-  _Linker(this.reader, this.ngMetas, this.resolvedIdentifiers);
+  _Linker(this.reader, this.ngMetas, this.resolvedIdentifiers, this.errorOnMissingIdentifiers);
 
   Future<NgMeta> linkRecursive(NgMeta ngMeta, AssetId assetId, Set<AssetId> seen) async {
     if (seen.contains(assetId)) return ngMeta;
@@ -111,7 +112,7 @@ class _Linker {
   Future _resolveIdentifiers(NgMeta ngMeta, AssetId assetId) async {
     if (ngMeta.needsResolution) {
       final resolver = new _NgMetaIdentifierResolver(
-          assetId, reader, ngMetas, resolvedIdentifiers);
+          assetId, reader, ngMetas, resolvedIdentifiers, errorOnMissingIdentifiers);
       return resolver.resolveNgMeta(ngMeta);
     } else {
       return null;
@@ -172,8 +173,9 @@ class _NgMetaIdentifierResolver {
   final Map<AssetId, NgMeta> ngMetas;
   final AssetReader reader;
   final AssetId entryPoint;
+  final bool errorOnMissingIdentifiers;
 
-  _NgMetaIdentifierResolver(this.entryPoint, this.reader, this.ngMetas, this.resolvedIdentifiers);
+  _NgMetaIdentifierResolver(this.entryPoint, this.reader, this.ngMetas, this.resolvedIdentifiers, this.errorOnMissingIdentifiers);
 
   Future resolveNgMeta(NgMeta ngMeta) async {
     final ngMetaMap = await _extractNgMetaMap(ngMeta);
@@ -328,10 +330,13 @@ class _NgMetaIdentifierResolver {
       if (resolved != null) {
         return resolved;
       } else {
-        log.error(
-            'Missing prefix "${prefix}" '
-                'needed by "${neededBy}" from metadata map',
-            asset: entryPoint);
+        final message = 'Missing prefix "${prefix}" '
+            'needed by "${neededBy}" from metadata map';
+        if (errorOnMissingIdentifiers) {
+          log.error(message, asset: entryPoint);
+        } else {
+          log.warning(message, asset: entryPoint);
+        }
         return null;
       }
     }
@@ -351,10 +356,13 @@ class _NgMetaIdentifierResolver {
       if (resolved != null) {
         return resolved;
       } else {
-        log.error(
-            'Missing identifier "${id.name}" '
-                'needed by "${neededBy}" from metadata map',
-            asset: entryPoint);
+        final message = 'Missing identifier "${id.name}" '
+            'needed by "${neededBy}" from metadata map';
+        if (errorOnMissingIdentifiers) {
+          log.error(message, asset: entryPoint);
+        } else {
+          log.warning(message, asset: entryPoint);
+        }
         return null;
       }
     }
@@ -369,6 +377,8 @@ class _NgMetaIdentifierResolver {
       // these are so common that we special case them in the transformer
     } else if (id.name == "Window" || id.name == "Document") {
       return new CompileIdentifierMetadata(name: id.name, moduleUrl: 'dart:html');
+    } else if (id.name == "Profiler") {
+      return new CompileIdentifierMetadata(name: id.name, moduleUrl: 'asset:perf_api/lib/perf_api.dart');
     } else if (id.name == "Logger") {
       return new CompileIdentifierMetadata(name: id.name, moduleUrl: 'asset:logging/lib/logging.dart');
     } else if (id.name == "Clock") {
@@ -377,6 +387,10 @@ class _NgMetaIdentifierResolver {
       return new CompileIdentifierMetadata(name: id.name, moduleUrl: 'asset:angular2/lib/src/testing/utils.dart');
     } else if (id.name == "TestComponentBuilder") {
       return new CompileIdentifierMetadata(name: id.name, moduleUrl: 'asset:angular2/lib/src/testing/test_component_builder.dart');
+    } else if (id.name == "Stream") {
+      return new CompileIdentifierMetadata(name: id.name, moduleUrl: 'dart:async');
+    } else if (id.name == "StreamController") {
+      return new CompileIdentifierMetadata(name: id.name, moduleUrl: 'dart:async');
     } else if (id.name == "FakeAsync") {
       return new CompileIdentifierMetadata(name: id.name, moduleUrl: 'asset:angular2/lib/src/testing/fake_async.dart');
     } else if (id.name == "StreamTracer") {
@@ -385,6 +399,12 @@ class _NgMetaIdentifierResolver {
       return new CompileIdentifierMetadata(name: id.name, moduleUrl: 'asset:streamy/lib/src/core/tracing.dart');
     } else if (id.name == "RequestHandler") {
       return new CompileIdentifierMetadata(name: id.name, moduleUrl: 'asset:streamy/lib/src/core/request_handler.dart');
+    } else if (id.name == "BatchingStrategy") {
+      return new CompileIdentifierMetadata(name: id.name, moduleUrl: 'asset:streamy/lib/src/extra/request_handler/batching.dart');
+    } else if (id.name == "ProxyClient") {
+      return new CompileIdentifierMetadata(name: id.name, moduleUrl: 'asset:streamy/lib/src/extra/request_handler/proxy.dart');
+    } else if (id.name == "StreamyHttpService") {
+      return new CompileIdentifierMetadata(name: id.name, moduleUrl: 'asset:streamy/lib/src/toolbox/http.dart');
     } else {
       return null;
     }

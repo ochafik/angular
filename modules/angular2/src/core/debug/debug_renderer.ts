@@ -1,18 +1,6 @@
 import {isPresent} from 'angular2/src/facade/lang';
-import {
-  Renderer,
-  RootRenderer,
-  RenderComponentType,
-  RenderDebugInfo
-} from 'angular2/src/core/render/api';
-import {
-  DebugNode,
-  DebugElement,
-  EventListener,
-  getDebugNode,
-  indexDebugNode,
-  removeDebugNodeFromIndex
-} from 'angular2/src/core/debug/debug_node';
+import {Renderer, RootRenderer, RenderComponentType, RenderDebugInfo} from 'angular2/src/core/render/api';
+import {DebugNode, DebugElement, EventListener, getDebugNode, indexDebugNode, removeDebugNodeFromIndex} from 'angular2/src/core/debug/debug_node';
 
 export class DebugDomRootRenderer implements RootRenderer {
   constructor(private _delegate: RootRenderer) {}
@@ -63,9 +51,10 @@ export class DebugDomRenderer implements Renderer {
   projectNodes(parentElement: any, nodes: any[]) {
     var debugParent = getDebugNode(parentElement);
     if (isPresent(debugParent) && debugParent instanceof DebugElement) {
-      nodes.forEach((node) => { debugParent.addChild(getDebugNode(node)); });
+      let debugElement = debugParent;
+      nodes.forEach((node) => { debugElement.addChild(getDebugNode(node)); });
     }
-    return this._delegate.projectNodes(parentElement, nodes);
+    this._delegate.projectNodes(parentElement, nodes);
   }
 
   attachViewAfter(node: any, viewRootNodes: any[]) {
@@ -78,7 +67,7 @@ export class DebugDomRenderer implements Renderer {
         debugParent.insertChildrenAfter(debugNode, debugViewRootNodes);
       }
     }
-    return this._delegate.attachViewAfter(node, viewRootNodes);
+    this._delegate.attachViewAfter(node, viewRootNodes);
   }
 
   detachView(viewRootNodes: any[]) {
@@ -88,15 +77,15 @@ export class DebugDomRenderer implements Renderer {
         debugNode.parent.removeChild(debugNode);
       }
     });
-    return this._delegate.detachView(viewRootNodes);
+    this._delegate.detachView(viewRootNodes);
   }
 
   destroyView(hostElement: any, viewAllNodes: any[]) {
     viewAllNodes.forEach((node) => { removeDebugNodeFromIndex(getDebugNode(node)); });
-    return this._delegate.destroyView(hostElement, viewAllNodes);
+    this._delegate.destroyView(hostElement, viewAllNodes);
   }
 
-  listen(renderElement: any, name: string, callback: Function) {
+  listen(renderElement: any, name: string, callback: Function): Function {
     var debugEl = getDebugNode(renderElement);
     if (isPresent(debugEl)) {
       debugEl.listeners.push(new EventListener(name, callback));
@@ -113,7 +102,7 @@ export class DebugDomRenderer implements Renderer {
     if (isPresent(debugEl) && debugEl instanceof DebugElement) {
       debugEl.properties.set(propertyName, propertyValue);
     }
-    return this._delegate.setElementProperty(renderElement, propertyName, propertyValue);
+    this._delegate.setElementProperty(renderElement, propertyName, propertyValue);
   }
 
   setElementAttribute(renderElement: any, attributeName: string, attributeValue: string) {
@@ -121,7 +110,7 @@ export class DebugDomRenderer implements Renderer {
     if (isPresent(debugEl) && debugEl instanceof DebugElement) {
       debugEl.attributes.set(attributeName, attributeValue);
     }
-    return this._delegate.setElementAttribute(renderElement, attributeName, attributeValue);
+    this._delegate.setElementAttribute(renderElement, attributeName, attributeValue);
   }
 
   /**
@@ -129,7 +118,7 @@ export class DebugDomRenderer implements Renderer {
    * such as <template> placeholders.
    */
   setBindingDebugInfo(renderElement: any, propertyName: string, propertyValue: string) {
-    return this._delegate.setBindingDebugInfo(renderElement, propertyName, propertyValue);
+    this._delegate.setBindingDebugInfo(renderElement, propertyName, propertyValue);
   }
 
   /**
@@ -138,20 +127,20 @@ export class DebugDomRenderer implements Renderer {
   setElementDebugInfo(renderElement: any, info: RenderDebugInfo) {
     var debugEl = getDebugNode(renderElement);
     debugEl.setDebugInfo(info);
-    return this._delegate.setElementDebugInfo(renderElement, info);
+    this._delegate.setElementDebugInfo(renderElement, info);
   }
 
   setElementClass(renderElement: any, className: string, isAdd: boolean) {
-    return this._delegate.setElementClass(renderElement, className, isAdd);
+    this._delegate.setElementClass(renderElement, className, isAdd);
   }
 
   setElementStyle(renderElement: any, styleName: string, styleValue: string) {
-    return this._delegate.setElementStyle(renderElement, styleName, styleValue);
+    this._delegate.setElementStyle(renderElement, styleName, styleValue);
   }
 
   invokeElementMethod(renderElement: any, methodName: string, args: any[]) {
-    return this._delegate.invokeElementMethod(renderElement, methodName, args);
+    this._delegate.invokeElementMethod(renderElement, methodName, args);
   }
 
-  setText(renderNode: any, text: string) { return this._delegate.setText(renderNode, text); }
+  setText(renderNode: any, text: string) { this._delegate.setText(renderNode, text); }
 }

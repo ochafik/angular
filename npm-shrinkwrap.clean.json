@@ -1629,7 +1629,15 @@
       "version": "1.0.2"
     },
     "clang-format": {
-      "version": "1.0.32"
+      "version": "1.0.37",
+      "dependencies": {
+        "async": {
+          "version": "1.5.2"
+        },
+        "glob": {
+          "version": "7.0.3"
+        }
+      }
     },
     "cli-color": {
       "version": "1.1.0",
@@ -3038,15 +3046,7 @@
       }
     },
     "gulp-tslint": {
-      "version": "3.6.0",
-      "dependencies": {
-        "tslint": {
-          "version": "2.5.1"
-        },
-        "underscore.string": {
-          "version": "3.1.1"
-        }
-      }
+      "version": "4.3.4"
     },
     "gulp-typescript": {
       "version": "2.10.0",
@@ -4623,12 +4623,7 @@
       }
     },
     "rcloader": {
-      "version": "0.1.4",
-      "dependencies": {
-        "lodash": {
-          "version": "3.10.1"
-        }
-      }
+      "version": "0.2.0"
     },
     "react": {
       "version": "0.14.5"
@@ -5465,7 +5460,7 @@
       "version": "0.0.6"
     },
     "typescript": {
-      "version": "1.7.5"
+      "version": "1.7.3"
     },
     "ua-parser-js": {
       "version": "0.7.10"
@@ -5832,9 +5827,9 @@
       }
     },
     "zone.js": {
-      "version": "0.6.6"
+      "version": "0.6.10"
     }
   },
   "name": "angular-srcs",
-  "version": "2.0.0-beta.11"
+  "version": "2.0.0-beta.14"
 }

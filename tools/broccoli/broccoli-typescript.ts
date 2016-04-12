@@ -58,7 +58,6 @@ class DiffingTSCompiler implements DiffingBroccoliPlugin {
   private genInternalTypings: boolean = false;
 
   static includeExtensions = ['.ts'];
-  static excludeExtensions = ['.d.ts'];
 
   constructor(public inputPath: string, public cachePath: string, public options) {
     if (options.rootFilePaths) {
@@ -83,17 +82,13 @@ class DiffingTSCompiler implements DiffingBroccoliPlugin {
       this.genInternalTypings = false;
     }
 
-    // TODO: the above turns rootDir set to './' into an empty string - looks like a tsc bug
-    //       check back when we upgrade to 1.7.x
-    if (this.tsOpts.rootDir === '') {
-      this.tsOpts.rootDir = './';
-    }
+    this.tsOpts.rootDir = inputPath;
     this.tsOpts.outDir = this.cachePath;
 
-    this.tsServiceHost = new CustomLanguageServiceHost(this.tsOpts, this.rootFilePaths,
-                                                       this.fileRegistry, this.inputPath);
+    this.tsServiceHost = new CustomLanguageServiceHost(
+        this.tsOpts, this.rootFilePaths, this.fileRegistry, this.inputPath);
     this.tsService = ts.createLanguageService(this.tsServiceHost, ts.createDocumentRegistry());
-    this.metadataCollector = new MetadataCollector(this.tsService);
+    this.metadataCollector = new MetadataCollector();
   }
 
 
@@ -102,17 +97,16 @@ class DiffingTSCompiler implements DiffingBroccoliPlugin {
     let pathsWithErrors = [];
     let errorMessages = [];
 
-    treeDiff.addedPaths.concat(treeDiff.changedPaths)
-        .forEach((tsFilePath) => {
-          if (!this.fileRegistry[tsFilePath]) {
-            this.fileRegistry[tsFilePath] = {version: 0};
-            this.rootFilePaths.push(tsFilePath);
-          } else {
-            this.fileRegistry[tsFilePath].version++;
-          }
+    treeDiff.addedPaths.concat(treeDiff.changedPaths).forEach((tsFilePath) => {
+      if (!this.fileRegistry[tsFilePath]) {
+        this.fileRegistry[tsFilePath] = {version: 0};
+        this.rootFilePaths.push(tsFilePath);
+      } else {
+        this.fileRegistry[tsFilePath].version++;
+      }
 
-          pathsToEmit.push(tsFilePath);
-        });
+      pathsToEmit.push(path.join(this.inputPath, tsFilePath));
+    });
 
     treeDiff.removedPaths.forEach((tsFilePath) => {
       console.log('removing outputs for', tsFilePath);
@@ -186,7 +180,7 @@ class DiffingTSCompiler implements DiffingBroccoliPlugin {
     let errors = [];
 
     allDiagnostics.forEach(diagnostic => {
-      let message = ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n");
+      let message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
       if (diagnostic.file) {
         let {line, character} = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
         errors.push(`  ${diagnostic.file.fileName} (${line + 1},${character + 1}): ${message}`);
@@ -262,8 +256,8 @@ class DiffingTSCompiler implements DiffingBroccoliPlugin {
    * Emit a .metadata.json file to correspond to the .d.ts file if the module contains classes that
    * use decorators or exported constants.
    */
-  private emitMetadata(dtsFileName: string, sourceFile: ts.SourceFile,
-                       typeChecker: ts.TypeChecker) {
+  private emitMetadata(
+      dtsFileName: string, sourceFile: ts.SourceFile, typeChecker: ts.TypeChecker) {
     if (sourceFile) {
       const metadata = this.metadataCollector.getMetadata(sourceFile, typeChecker);
       if (metadata && metadata.metadata) {
@@ -286,16 +280,16 @@ class DiffingTSCompiler implements DiffingBroccoliPlugin {
    */
   private fixSourceMapSources(content: string): string {
     try {
-      const marker = "//# sourceMappingURL=data:application/json;base64,";
+      const marker = '//# sourceMappingURL=data:application/json;base64,';
       const index = content.indexOf(marker);
       if (index == -1) return content;
 
       const base = content.substring(0, index + marker.length);
       const sourceMapBit =
-          new Buffer(content.substring(index + marker.length), 'base64').toString("utf8");
+          new Buffer(content.substring(index + marker.length), 'base64').toString('utf8');
       const sourceMaps = JSON.parse(sourceMapBit);
       const source = sourceMaps.sources[0];
-      sourceMaps.sources = [source.substring(source.lastIndexOf("../") + 3)];
+      sourceMaps.sources = [source.substring(source.lastIndexOf('../') + 3)];
       return `${base}${new Buffer(JSON.stringify(sourceMaps)).toString('base64')}`;
     } catch (e) {
       return content;
@@ -324,61 +318,45 @@ class CustomLanguageServiceHost implements ts.LanguageServiceHost {
   private defaultLibFilePath: string;
 
 
-  constructor(private compilerOptions: ts.CompilerOptions, private fileNames: string[],
-              private fileRegistry: FileRegistry, private treeInputPath: string) {
+  constructor(
+      private compilerOptions: ts.CompilerOptions, private fileNames: string[],
+      private fileRegistry: FileRegistry, private treeInputPath: string) {
     this.currentDirectory = process.cwd();
     this.defaultLibFilePath = ts.getDefaultLibFilePath(compilerOptions).replace(/\\/g, '/');
   }
 
 
-  getScriptFileNames(): string[] { return this.fileNames; }
-
-
-  getScriptVersion(fileName: string): string {
-    return this.fileRegistry[fileName] && this.fileRegistry[fileName].version.toString();
+  getScriptFileNames(): string[] {
+    return this.fileNames.map(f => path.join(this.treeInputPath, f));
   }
 
 
-  /**
-   * This method is called quite a bit to lookup 3 kinds of paths:
-   * 1/ files in the fileRegistry
-   *   - these are the files in our project that we are watching for changes
-   *   - in the future we could add caching for these files and invalidate the cache when
-   *     the file is changed lazily during lookup
-   * 2/ .d.ts and library files not in the fileRegistry
-   *   - these are not our files, they come from tsd or typescript itself
-   *   - these files change only rarely but since we need them very rarely, it's not worth the
-   *     cache invalidation hassle to cache them
-   * 3/ bogus paths that typescript compiler tries to lookup during import resolution
-   *   - these paths are tricky to cache since files come and go and paths that was bogus in the
-   *     past might not be bogus later
-   *
-   * In the initial experiments the impact of this caching was insignificant (single digit %) and
-   * not worth the potential issues with stale cache records.
-   */
-  getScriptSnapshot(tsFilePath: string): ts.IScriptSnapshot {
-    let absoluteTsFilePath;
-
-    if (tsFilePath == this.defaultLibFilePath || path.isAbsolute(tsFilePath)) {
-      absoluteTsFilePath = tsFilePath;
-    } else if (this.compilerOptions.moduleResolution === ts.ModuleResolutionKind.NodeJs &&
-               tsFilePath.match(/^node_modules/)) {
-      absoluteTsFilePath = path.resolve(tsFilePath);
-    } else if (tsFilePath.match(/^rxjs/)) {
-      absoluteTsFilePath = path.resolve('node_modules', tsFilePath);
-    } else if (tsFilePath.match(/^node_modules/)) {
-      absoluteTsFilePath = path.resolve('node_modules/../', tsFilePath);
-    } else {
-      absoluteTsFilePath = path.join(this.treeInputPath, tsFilePath);
+  getScriptVersion(fileName: string): string {
+    if (startsWith(fileName, this.treeInputPath)) {
+      const key = fileName.substr(this.treeInputPath.length + 1);
+      return this.fileRegistry[key] && this.fileRegistry[key].version.toString();
     }
+  }
 
 
-    if (!fs.existsSync(absoluteTsFilePath)) {
-      // TypeScript seems to request lots of bogus paths during import path lookup and resolution,
-      // so we we just return undefined when the path is not correct.
+  getScriptSnapshot(tsFilePath: string): ts.IScriptSnapshot {
+    // TypeScript seems to request lots of bogus paths during import path lookup and resolution,
+    // so we we just return undefined when the path is not correct.
+
+    // Ensure it is in the input tree or a lib.d.ts file.
+    if (!startsWith(tsFilePath, this.treeInputPath) && !tsFilePath.match(/\/lib(\..*)*.d\.ts$/)) {
+      if (fs.existsSync(tsFilePath)) {
+        console.log('Rejecting', tsFilePath, '. File is not in the input tree.');
+      }
       return undefined;
     }
-    return ts.ScriptSnapshot.fromString(fs.readFileSync(absoluteTsFilePath, FS_OPTS));
+
+    // Ensure it exists
+    if (!fs.existsSync(tsFilePath)) {
+      return undefined;
+    }
+
+    return ts.ScriptSnapshot.fromString(fs.readFileSync(tsFilePath, FS_OPTS));
   }
 
 
@@ -400,6 +378,10 @@ function clone<T>(object: T): T {
     result[id] = (<any>object)[id];
   }
   return <T>result;
+}
+
+function startsWith(str: string, substring: string): boolean {
+  return str.substring(0, substring.length) === substring;
 }
 
 function endsWith(str: string, substring: string): boolean {

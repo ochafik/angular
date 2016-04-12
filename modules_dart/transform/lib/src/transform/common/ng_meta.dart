@@ -70,7 +70,7 @@ class NgMeta {
 
   bool get needsResolution {
     return identifiers.values.any((id) =>
-      id is CompileDirectiveMetadata || id is CompilePipeMetadata || id is CompileTypeMetadata
+      id is CompileDirectiveMetadata || id is CompilePipeMetadata || id is CompileTypeMetadata || id is CompileFactoryMetadata
           || (id is CompileIdentifierMetadata && id.value != null));
   }
 

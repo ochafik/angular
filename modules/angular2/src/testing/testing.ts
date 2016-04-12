@@ -6,13 +6,7 @@ import {global} from 'angular2/src/facade/lang';
 import {ListWrapper} from 'angular2/src/facade/collection';
 import {bind} from 'angular2/core';
 
-import {
-  FunctionWithParamTokens,
-  inject,
-  injectAsync,
-  TestInjector,
-  getTestInjector
-} from './test_injector';
+import {FunctionWithParamTokens, inject, injectAsync, TestInjector, getTestInjector} from './test_injector';
 
 export {inject, injectAsync} from './test_injector';
 
@@ -115,9 +109,10 @@ export function beforeEachProviders(fn): void {
     try {
       testInjector.addProviders(providers);
     } catch (e) {
-      throw new Error('beforeEachProviders was called after the injector had ' +
-                      'been used in a beforeEach or it block. This invalidates the ' +
-                      'test injector');
+      throw new Error(
+          'beforeEachProviders was called after the injector had ' +
+          'been used in a beforeEach or it block. This invalidates the ' +
+          'test injector');
     }
   });
 }
@@ -126,31 +121,35 @@ function _isPromiseLike(input): boolean {
   return input && !!(input.then);
 }
 
-function _it(jsmFn: Function, name: string, testFn: FunctionWithParamTokens | AnyTestFn,
-             testTimeOut: number): void {
+function _it(
+    jsmFn: Function, name: string, testFn: FunctionWithParamTokens | AnyTestFn,
+    testTimeOut: number): void {
   var timeOut = testTimeOut;
 
   if (testFn instanceof FunctionWithParamTokens) {
+    let testFnT = testFn;
     jsmFn(name, (done) => {
       var returnedTestValue;
       try {
-        returnedTestValue = testInjector.execute(testFn);
+        returnedTestValue = testInjector.execute(testFnT);
       } catch (err) {
         done.fail(err);
         return;
       }
 
-      if (testFn.isAsync) {
+      if (testFnT.isAsync) {
         if (_isPromiseLike(returnedTestValue)) {
           (<Promise<any>>returnedTestValue).then(() => { done(); }, (err) => { done.fail(err); });
         } else {
-          done.fail('Error: injectAsync was expected to return a promise, but the ' +
-                    ' returned value was: ' + returnedTestValue);
+          done.fail(
+              'Error: injectAsync was expected to return a promise, but the ' +
+              ' returned value was: ' + returnedTestValue);
         }
       } else {
         if (!(returnedTestValue === undefined)) {
-          done.fail('Error: inject returned a value. Did you mean to use injectAsync? Returned ' +
-                    'value was: ' + returnedTestValue);
+          done.fail(
+              'Error: inject returned a value. Did you mean to use injectAsync? Returned ' +
+              'value was: ' + returnedTestValue);
         }
         done();
       }
@@ -178,26 +177,29 @@ export function beforeEach(fn: FunctionWithParamTokens | AnyTestFn): void {
   if (fn instanceof FunctionWithParamTokens) {
     // The test case uses inject(). ie `beforeEach(inject([ClassA], (a) => { ...
     // }));`
+    let fnT = fn;
     jsmBeforeEach((done) => {
 
       var returnedTestValue;
       try {
-        returnedTestValue = testInjector.execute(fn);
+        returnedTestValue = testInjector.execute(fnT);
       } catch (err) {
         done.fail(err);
         return;
       }
-      if (fn.isAsync) {
+      if (fnT.isAsync) {
         if (_isPromiseLike(returnedTestValue)) {
           (<Promise<any>>returnedTestValue).then(() => { done(); }, (err) => { done.fail(err); });
         } else {
-          done.fail('Error: injectAsync was expected to return a promise, but the ' +
-                    ' returned value was: ' + returnedTestValue);
+          done.fail(
+              'Error: injectAsync was expected to return a promise, but the ' +
+              ' returned value was: ' + returnedTestValue);
         }
       } else {
         if (!(returnedTestValue === undefined)) {
-          done.fail('Error: inject returned a value. Did you mean to use injectAsync? Returned ' +
-                    'value was: ' + returnedTestValue);
+          done.fail(
+              'Error: inject returned a value. Did you mean to use injectAsync? Returned ' +
+              'value was: ' + returnedTestValue);
         }
         done();
       }
@@ -226,8 +228,8 @@ export function beforeEach(fn: FunctionWithParamTokens | AnyTestFn): void {
  *
  * {@example testing/ts/testing.ts region='describeIt'}
  */
-export function it(name: string, fn: FunctionWithParamTokens | AnyTestFn,
-                   timeOut: number = null): void {
+export function it(
+    name: string, fn: FunctionWithParamTokens | AnyTestFn, timeOut: number = null): void {
   return _it(jsmIt, name, fn, timeOut);
 }
 
@@ -242,16 +244,16 @@ export function it(name: string, fn: FunctionWithParamTokens | AnyTestFn,
  *
  * {@example testing/ts/testing.ts region='xit'}
  */
-export function xit(name: string, fn: FunctionWithParamTokens | AnyTestFn,
-                    timeOut: number = null): void {
+export function xit(
+    name: string, fn: FunctionWithParamTokens | AnyTestFn, timeOut: number = null): void {
   return _it(jsmXIt, name, fn, timeOut);
 }
 
 /**
  * See {@link fit}.
  */
-export function iit(name: string, fn: FunctionWithParamTokens | AnyTestFn,
-                    timeOut: number = null): void {
+export function iit(
+    name: string, fn: FunctionWithParamTokens | AnyTestFn, timeOut: number = null): void {
   return _it(jsmIIt, name, fn, timeOut);
 }
 
@@ -265,7 +267,7 @@ export function iit(name: string, fn: FunctionWithParamTokens | AnyTestFn,
  *
  * {@example testing/ts/testing.ts region='fit'}
  */
-export function fit(name: string, fn: FunctionWithParamTokens | AnyTestFn,
-                    timeOut: number = null): void {
+export function fit(
+    name: string, fn: FunctionWithParamTokens | AnyTestFn, timeOut: number = null): void {
   return _it(jsmIIt, name, fn, timeOut);
 }

@@ -21,9 +21,9 @@ export function serializeParams(urlParams: {[key: string]: any}, joiner = '&'): 
  * This class represents a parsed URL
  */
 export class Url {
-  constructor(public path: string, public child: Url = null,
-              public auxiliary: Url[] = CONST_EXPR([]),
-              public params: {[key: string]: any} = CONST_EXPR({})) {}
+  constructor(
+      public path: string, public child: Url = null, public auxiliary: Url[] = CONST_EXPR([]),
+      public params: {[key: string]: any} = CONST_EXPR({})) {}
 
   toString(): string {
     return this.path + this._matrixParamsToString() + this._auxToString() + this._childString();
@@ -34,8 +34,8 @@ export class Url {
   /** @internal */
   _auxToString(): string {
     return this.auxiliary.length > 0 ?
-               ('(' + this.auxiliary.map(sibling => sibling.toString()).join('//') + ')') :
-               '';
+        ('(' + this.auxiliary.map(sibling => sibling.toString()).join('//') + ')') :
+        '';
   }
 
   private _matrixParamsToString(): string {
@@ -51,8 +51,9 @@ export class Url {
 }
 
 export class RootUrl extends Url {
-  constructor(path: string, child: Url = null, auxiliary: Url[] = CONST_EXPR([]),
-              params: {[key: string]: any} = null) {
+  constructor(
+      path: string, child: Url = null, auxiliary: Url[] = CONST_EXPR([]),
+      params: {[key: string]: any} = null) {
     super(path, child, auxiliary, params);
   }
 
@@ -82,6 +83,11 @@ export function pathSegmentsToUrl(pathSegments: string[]): Url {
 var SEGMENT_RE = RegExpWrapper.create('^[^\\/\\(\\)\\?;=&#]+');
 function matchUrlSegment(str: string): string {
   var match = RegExpWrapper.firstMatch(SEGMENT_RE, str);
+  return isPresent(match) ? match[0] : '';
+}
+var QUERY_PARAM_VALUE_RE = RegExpWrapper.create('^[^\\(\\)\\?;&#]+');
+function matchUrlQueryParamValue(str: string): string {
+  var match = RegExpWrapper.firstMatch(QUERY_PARAM_VALUE_RE, str);
   return isPresent(match) ? match[0] : '';
 }
 
@@ -163,10 +169,10 @@ export class UrlParser {
   parseQueryParams(): {[key: string]: any} {
     var params: {[key: string]: any} = {};
     this.capture('?');
-    this.parseParam(params);
+    this.parseQueryParam(params);
     while (this._remaining.length > 0 && this.peekStartsWith('&')) {
       this.capture('&');
-      this.parseParam(params);
+      this.parseQueryParam(params);
     }
     return params;
   }
@@ -190,6 +196,25 @@ export class UrlParser {
     if (this.peekStartsWith('=')) {
       this.capture('=');
       var valueMatch = matchUrlSegment(this._remaining);
+      if (isPresent(valueMatch)) {
+        value = valueMatch;
+        this.capture(value);
+      }
+    }
+
+    params[key] = value;
+  }
+
+  parseQueryParam(params: {[key: string]: any}): void {
+    var key = matchUrlSegment(this._remaining);
+    if (isBlank(key)) {
+      return;
+    }
+    this.capture(key);
+    var value: any = true;
+    if (this.peekStartsWith('=')) {
+      this.capture('=');
+      var valueMatch = matchUrlQueryParamValue(this._remaining);
       if (isPresent(valueMatch)) {
         value = valueMatch;
         this.capture(value);

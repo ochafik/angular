@@ -59,6 +59,7 @@ class DirectiveMetadataLinker extends Transformer implements LazyTransformer {
           primaryId,
           _ngLinkedAssetId(primaryId),
           options.resolvedIdentifiers,
+          options.errorOnMissingIdentifiers,
           ngMetasCache).then((ngMeta) {
         if (ngMeta != null) {
           final outputId = _ngLinkedAssetId(primaryId);

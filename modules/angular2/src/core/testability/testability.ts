@@ -15,6 +15,7 @@ import {ObservableWrapper} from 'angular2/src/facade/async';
 export class Testability {
   /** @internal */
   _pendingCount: number = 0;
+  /** @internal */
   _isZoneStable: boolean = true;
   /**
    * Whether any work was done since the last 'whenStable' callback. This is
@@ -129,15 +130,15 @@ export class TestabilityRegistry {
  */
 export interface GetTestability {
   addToWindow(registry: TestabilityRegistry): void;
-  findTestabilityInTree(registry: TestabilityRegistry, elem: any,
-                        findInAncestors: boolean): Testability;
+  findTestabilityInTree(registry: TestabilityRegistry, elem: any, findInAncestors: boolean):
+      Testability;
 }
 
 @CONST()
 class _NoopGetTestability implements GetTestability {
   addToWindow(registry: TestabilityRegistry): void {}
-  findTestabilityInTree(registry: TestabilityRegistry, elem: any,
-                        findInAncestors: boolean): Testability {
+  findTestabilityInTree(registry: TestabilityRegistry, elem: any, findInAncestors: boolean):
+      Testability {
     return null;
   }
 }

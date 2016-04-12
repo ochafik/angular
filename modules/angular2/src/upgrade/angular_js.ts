@@ -1,13 +1,14 @@
 export interface IModule {
   config(fn: any): IModule;
   directive(selector: string, factory: any): IModule;
+  component(selector: string, component: IComponent): IModule;
   controller(name: string, type: any): IModule;
   factory(key: string, factoryFn: any): IModule;
   value(key: string, value: any): IModule;
   run(a: any): void;
 }
 export interface ICompileService {
-  (element: Element | NodeList | string, transclude?: Function): ILinkFn;
+  (element: Element|NodeList|string, transclude?: Function): ILinkFn;
 }
 export interface ILinkFn {
   (scope: IScope, cloneAttachFn?: Function, options?: ILinkFnOptions): void;
@@ -34,8 +35,8 @@ export interface IDirective {
   compile?: IDirectiveCompileFn;
   controller?: any;
   controllerAs?: string;
-  bindToController?: boolean | Object;
-  link?: IDirectiveLinkFn | IDirectivePrePost;
+  bindToController?: boolean|Object;
+  link?: IDirectiveLinkFn|IDirectivePrePost;
   name?: string;
   priority?: number;
   replace?: boolean;
@@ -58,6 +59,15 @@ export interface IDirectivePrePost {
 export interface IDirectiveLinkFn {
   (scope: IScope, instanceElement: IAugmentedJQuery, instanceAttributes: IAttributes,
    controller: any, transclude: ITranscludeFunction): void;
+}
+export interface IComponent {
+  bindings?: Object;
+  controller?: any;
+  controllerAs?: string;
+  require?: any;
+  template?: any;
+  templateUrl?: any;
+  transclude?: any;
 }
 export interface IAttributes { $observe(attr: string, fn: (v: string) => void): void; }
 export interface ITranscludeFunction {
@@ -109,21 +119,20 @@ function noNg() {
   throw new Error('AngularJS v1.x is not loaded!');
 }
 
-var angular:
-    {
-      bootstrap: (e: Element, modules: string[], config: IAngularBootstrapConfig) => void,
-      module: (prefix: string, dependencies?: string[]) => IModule,
-      element: (e: Element) => IAugmentedJQuery,
-      version: {major: number}, resumeBootstrap?: () => void,
-      getTestability: (e: Element) => ITestabilityService
-    } = <any>{
-      bootstrap: noNg,
-      module: noNg,
-      element: noNg,
-      version: noNg,
-      resumeBootstrap: noNg,
-      getTestability: noNg
-    };
+var angular: {
+  bootstrap: (e: Element, modules: string[], config: IAngularBootstrapConfig) => void,
+  module: (prefix: string, dependencies?: string[]) => IModule,
+  element: (e: Element) => IAugmentedJQuery,
+  version: {major: number}, resumeBootstrap?: () => void,
+  getTestability: (e: Element) => ITestabilityService
+} = <any>{
+  bootstrap: noNg,
+  module: noNg,
+  element: noNg,
+  version: noNg,
+  resumeBootstrap: noNg,
+  getTestability: noNg
+};
 
 
 try {

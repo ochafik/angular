@@ -128,6 +128,12 @@ void allTests() {
       expect(a.needsResolution, isTrue);
     });
 
+    test('should be true if there is a factory', () {
+      var a = new NgMeta.empty();
+      a.identifiers["MyIdentifier"] = new CompileFactoryMetadata();
+      expect(a.needsResolution, isTrue);
+    });
+
     test('should be false otherwise', () {
       var a = new NgMeta.empty();
       a.identifiers["MyIdentifier"] = "some value";
