@@ -55,17 +55,17 @@ export class Runner {
     }
     if (isPresent(microMetrics)) {
       multiMetrics.push(PerflogMetric)
-          sampleBindings.push(bind(Options.MICRO_METRICS).toValue(microMetrics));
+      sampleBindings.push(bind(Options.MICRO_METRICS).toValue(microMetrics));
     }
     if (isPresent(bindings)) {
       sampleBindings.push(bindings);
     }
     if (isPresent(userMetrics)) {
       multiMetrics.push(UserMetric);
-      sampleBindings.push(benchpress.UserMetric.createBindings(userMetrics));
+      sampleBindings.push(UserMetric.createBindings(userMetrics));
     }
 
-    sampleBindings.push(benchpress.MultiMetric.createBindings(multiMetrics));
+    sampleBindings.push(MultiMetric.createBindings(multiMetrics));
 
     var inj = Injector.resolveAndCreate(sampleBindings);
     var adapter = inj.get(WebDriverAdapter);
