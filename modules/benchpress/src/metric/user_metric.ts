@@ -51,11 +51,11 @@ export class UserMetric extends Metric {
                       StringMapWrapper.set(map, names[i], values[i]);
                     }
                     completer.resolve(map);
-                  });
+                  }, completer.reject);
             } else {
               TimerWrapper.setTimeout(getAndClearValues, 100);
             }
-          });
+          }, completer.reject);
     }
     getAndClearValues();
     return completer.promise;
