@@ -1,11 +1,10 @@
 import {bind, Provider, OpaqueToken} from 'angular2/src/core/di';
-import {PromiseWrapper} from 'angular2/src/facade/async';
+import {PromiseWrapper, TimerWrapper} from 'angular2/src/facade/async';
 import {StringMapWrapper} from 'angular2/src/facade/collection';
+import {BaseException} from "angular2/src/facade/exceptions";
 
 import {Metric} from '../metric';
 import {WebDriverAdapter} from '../web_driver_adapter';
-
-var Observable = require('rxjs').Observable;
 
 var _USER_PROPERTIES = new OpaqueToken('UserMetric.properties');
 
@@ -37,23 +36,29 @@ export class UserMetric extends Metric {
    * Ends measuring.
    */
   endMeasure(): Promise<{[key: string]: any}> {
-    return Observable.interval(100)
-        .switchMap(() => Observable.fromPromise(Promise.all(this._properties.map(prop => {
-          return this._wdAdapter.executeScript(`return window.${prop.name}`);
-        }))))
-        .filter((values: any[]) => values.filter(val => typeof val !== 'number').length === 0)
-        .do(() => {
-          this._properties.forEach(prop =>
-                                       this._wdAdapter.executeScript(`delete window.${prop.name}`));
-        })
-        .map(propertyValues => this._properties.reduce(
-                 (prev, curr, i) => {
-                   prev[curr.name] = propertyValues[i];
-                   return prev;
-                 },
-                 {}))
-        .take(1)
-        .toPromise();
+    let completer = PromiseWrapper.completer<{[key: string]: any}>();
+    let adapter = this._wdAdapter;
+    let names = this._properties.map((prop) => prop.name);
+
+    function getAndClearValues() {
+      Promise.all(names.map(name => adapter.executeScript(`return window.${name}`)))
+          .then((values) => {
+            if (values.every(value => typeof value === 'number')) {
+              Promise.all(names.map(name => adapter.executeScript(`delete window.${name}`)))
+                  .then((_) => {
+                    let map = StringMapWrapper.create();
+                    for (let i = 0, n = names.length; i < n; i++) {
+                      StringMapWrapper.set(map, names[i], values[i]);
+                    }
+                    completer.resolve(map);
+                  });
+            } else {
+              TimerWrapper.setTimeout(getAndClearValues, 100);
+            }
+          });
+    }
+    getAndClearValues();
+    return completer.promise;
   }
 
   /**
