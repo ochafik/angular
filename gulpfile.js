@@ -177,7 +177,7 @@ var PAYLOAD_TESTS_CONFIG = {
       return path.join(__dirname, CONFIG.dest.js.prod.es5, 'payload_tests', caseName,
                        'ts/' + packaging);
     },
-    systemjs: {sizeLimits: {'uncompressed': 850 * 1024, 'gzip level=9': 165 * 1024}},
+    systemjs: {sizeLimits: {'uncompressed': 870 * 1024, 'gzip level=9': 165 * 1024}},
     webpack: {sizeLimits: {'uncompressed': 550 * 1024, 'gzip level=9': 120 * 1024}}
   }
 };
@@ -1203,7 +1203,8 @@ gulp.task('!bundle.js.prod', ['build.js.prod'], function() {
 // minified production build
 gulp.task('!bundle.js.min', ['build.js.prod'], function() {
   var bundler = require('./tools/build/bundle');
-  var bundlerConfig = {sourceMaps: true, minify: true};
+  var bundlerConfig =
+      {sourceMaps: true, minify: true, mangle: false, uglify: {compress: {keep_fnames: true}}};
 
   return bundler.bundle(bundleConfig, NG2_BUNDLE_CONTENT, './dist/build/angular2.min.js',
                         bundlerConfig)

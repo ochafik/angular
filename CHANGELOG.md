@@ -1,3 +1,71 @@
+<a name="2.0.0-beta.14"></a>
+# 2.0.0-beta.14 (2016-04-07)
+
+
+### Bug Fixes
+
+* **forms:** support both value and ng-value ([8db97b0](https://github.com/angular/angular/commit/8db97b0))
+* **router:** allow forward slashes in query parameters ([4902244](https://github.com/angular/angular/commit/4902244)), closes [#7824](https://github.com/angular/angular/issues/7824)
+* **select:** support objects as select values ([74e2bd7](https://github.com/angular/angular/commit/74e2bd7)), closes [#4843](https://github.com/angular/angular/issues/4843) [#7842](https://github.com/angular/angular/issues/7842)
+* **select:** update name from ng-value to ngValue ([3ca6df8](https://github.com/angular/angular/commit/3ca6df8)), closes [#7939](https://github.com/angular/angular/issues/7939)
+* **upgrade:** leak when angular1 destroys element ([9be04f8](https://github.com/angular/angular/commit/9be04f8)), closes [#6401](https://github.com/angular/angular/issues/6401) [#7935](https://github.com/angular/angular/issues/7935)
+
+### Features
+
+* **dart/transform:** Avoid `print` in transformer code. ([e310bee](https://github.com/angular/angular/commit/e310bee)), closes [#7855](https://github.com/angular/angular/issues/7855)
+* **static-reflector:** Added StaticReflector ([0dbf959](https://github.com/angular/angular/commit/0dbf959))
+
+
+
+
+
+<a name="2.0.0-beta.13"></a>
+# 2.0.0-beta.13 (2016-03-31)
+
+
+### Bug Fixes
+
+* **build:** MetadataCollector correctly collects property metadata ([111afcd](https://github.com/angular/angular/commit/111afcd)), closes [#7772](https://github.com/angular/angular/issues/7772) [#7773](https://github.com/angular/angular/issues/7773)
+* **codegen:** stringify using an opaque ID when toString contains parens. ([90c87fa](https://github.com/angular/angular/commit/90c87fa)), closes [#7825](https://github.com/angular/angular/issues/7825)
+* **ngFor:** give more instructive error when binding to non-iterable ([49527ab](https://github.com/angular/angular/commit/49527ab))
+* **Router:** handling of special chars in dynamic segments ([0bcfcde](https://github.com/angular/angular/commit/0bcfcde)), closes [#7804](https://github.com/angular/angular/issues/7804)
+* **upgrade:** make ngUpgrade work with testability API ([430f367](https://github.com/angular/angular/commit/430f367)), closes [#7603](https://github.com/angular/angular/issues/7603)
+
+### Features
+
+* **build:** Persisting decorator metadata ([ae876d1](https://github.com/angular/angular/commit/ae876d1))
+* **compiler:** assert that Component.style is an array ([6de68e2](https://github.com/angular/angular/commit/6de68e2)), closes [#7559](https://github.com/angular/angular/issues/7559)
+* **compiler:** Resolvers now use DI to create reflector ([506f4ce](https://github.com/angular/angular/commit/506f4ce)), closes [#7762](https://github.com/angular/angular/issues/7762)
+* **Compiler:** Allow overriding the projection selector ([aa966f5](https://github.com/angular/angular/commit/aa966f5)), closes [#6303](https://github.com/angular/angular/issues/6303) [#7742](https://github.com/angular/angular/issues/7742)
+* **dart:** Add a dev-mode check for undeclared lifecycle interfaces ([1c20a62](https://github.com/angular/angular/commit/1c20a62)), closes [#6849](https://github.com/angular/angular/issues/6849)
+* **facade:** add ListWrapper.flatten ([a1880c3](https://github.com/angular/angular/commit/a1880c3))
+* **facade:** add RegExpWrapper.replaceAll to replace all matches using the provided function ([91999e0](https://github.com/angular/angular/commit/91999e0))
+* **html_parser:** change HtmlElementAst to store both the start and the end positions ([17c8ec8](https://github.com/angular/angular/commit/17c8ec8))
+* **i18n:** implement an i18n-aware html parser ([d272f96](https://github.com/angular/angular/commit/d272f96)), closes [#7738](https://github.com/angular/angular/issues/7738)
+* **i18n:** implement xmb deserialization ([d7e1175](https://github.com/angular/angular/commit/d7e1175))
+* **i18n:** reexport I18nHtmlParser through the i18n barrel ([d2ca7d8](https://github.com/angular/angular/commit/d2ca7d8))
+* **i18n:** update I18nHtmlParser to accept parsed messages ([756121a](https://github.com/angular/angular/commit/756121a))
+* **i18n:** update transformers to read a xmb file when provided and use I18nHtmlParser in t ([8430927](https://github.com/angular/angular/commit/8430927)), closes [#7790](https://github.com/angular/angular/issues/7790)
+
+
+### BREAKING CHANGES
+
+* For static content projection, elements with *-directives are now matched against the element itself vs the template before.
+
+`<p *ngIf="condition" foo></p>`
+
+Before:
+```html
+    // Use the implicit template for projection
+    <ng-content select="template"></ng-content>
+```
+
+After:
+```html
+    // Use the actual element for projection
+    <ng-content select="p[foo]"></ng-content>
+```
+
 <a name="2.0.0-beta.12"></a>
 # 2.0.0-beta.12 (2016-03-23)
 

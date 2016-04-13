@@ -1,12 +1,15 @@
 library angular2.transform.common.options_reader;
 
+import 'dart:io';
+
 import 'package:barback/barback.dart';
+
 import 'annotation_matcher.dart';
 import 'mirror_mode.dart';
 import 'options.dart';
 import './url_resolver.dart';
 
-  TransformerOptions parseBarbackSettings(BarbackSettings settings) {
+TransformerOptions parseBarbackSettings(BarbackSettings settings) {
   var config = settings.configuration;
   var entryPoints = _readStringList(config, ENTRY_POINT_PARAM);
   var initReflector =
@@ -16,6 +19,7 @@ import './url_resolver.dart';
   var platformDirectives = _readStringList(config, PLATFORM_DIRECTIVES);
   var platformPipes = _readStringList(config, PLATFORM_PIPES);
   var resolvedIdentifiers = config[RESOLVED_IDENTIFIERS];
+  var errorOnMissingIdentifiers = _readBool(config, ERROR_ON_MISSING_IDENTIFIERS, defaultValue: true);
   var formatCode = _readBool(config, FORMAT_CODE_PARAM, defaultValue: false);
   String mirrorModeVal =
       config.containsKey(MIRROR_MODE_PARAM) ? config[MIRROR_MODE_PARAM] : '';
@@ -41,6 +45,7 @@ import './url_resolver.dart';
       platformDirectives: platformDirectives,
       platformPipes: platformPipes,
       resolvedIdentifiers: resolvedIdentifiers,
+      errorOnMissingIdentifiers: errorOnMissingIdentifiers,
       inlineViews: _readBool(config, INLINE_VIEWS_PARAM, defaultValue: false),
       lazyTransformers:
           _readBool(config, LAZY_TRANSFORMERS, defaultValue: false),
@@ -79,7 +84,8 @@ List<String> _readStringList(Map config, String paramName) {
     error = true;
   }
   if (error) {
-    print('Invalid value for "$paramName" in the Angular 2 transformer.');
+    stderr.writeln(
+        'Invalid value for "$paramName" in the Angular 2 transformer.');
   }
   return result;
 }
@@ -111,7 +117,7 @@ List<ClassDescriptor> _readCustomAnnotations(Map config) {
     }
   }
   if (error) {
-    print(CUSTOM_ANNOTATIONS_ERROR);
+    stderr.writeln(CUSTOM_ANNOTATIONS_ERROR);
   }
   return descriptors;
 }
@@ -121,7 +127,7 @@ const CUSTOM_ANNOTATIONS_ERROR = '''
   Expected something that looks like the following:
 
   transformers:
-  - angular2:
+  - angular2[/transform/codegen]:
       custom_annotations:
         - name: MyAnnotation
           import: 'package:my_package/my_annotation.dart'
