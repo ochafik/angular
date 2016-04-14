@@ -2,7 +2,6 @@ import {bind, Provider, OpaqueToken} from 'angular2/src/core/di';
 import {PromiseWrapper, TimerWrapper} from 'angular2/src/facade/async';
 import {StringMapWrapper} from 'angular2/src/facade/collection';
 import {isNumber} from 'angular2/src/facade/lang';
-import {BaseException} from "angular2/src/facade/exceptions";
 
 import {Metric} from '../metric';
 import {WebDriverAdapter} from '../web_driver_adapter';

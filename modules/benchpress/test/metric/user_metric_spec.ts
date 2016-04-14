@@ -30,11 +30,7 @@ import {
   Options
 } from 'benchpress/common';
 
-import {TraceEventFactory} from '../trace_event_factory';
-
 export function main() {
-  var commandLog: any[];
-  var eventFactory = new TraceEventFactory('timeline', 'pid0');
 
   function createMetric(perfLogs, perfLogFeatures,
                         {userMetrics, forceGc, captureFrames, receivedData, requestCount}: {
@@ -44,7 +40,6 @@ export function main() {
                           receivedData?: boolean,
                           requestCount?: boolean
                         } = {}): UserMetric {
-    commandLog = [];
     if (isBlank(perfLogFeatures)) {
       perfLogFeatures =
           new PerfLogFeatures({render: true, gc: true, frameCapture: true, userTiming: true});
@@ -53,8 +48,7 @@ export function main() {
       userMetrics = StringMapWrapper.create();
     }
     var bindings = [
-      provide(WebDriverAdapter,
-              {useFactory: () => new MockDriverAdapter([], [], 'Tracing.dataCollected')}),
+      provide(WebDriverAdapter, {useFactory: () => new MockDriverAdapter()}),
       Options.DEFAULT_PROVIDERS,
       MultiMetric.createBindings([UserMetric]),
       UserMetric.createBindings(userMetrics)
@@ -63,13 +57,6 @@ export function main() {
   }
 
   describe('user metric', () => {
-
-    function sortedKeys(stringMap) {
-      var res = [];
-      StringMapWrapper.forEach(stringMap, (_, key) => { res.push(key); });
-      res.sort();
-      return res;
-    }
 
     it('should describe itself based on microMetrics', () => {
       expect(createMetric([[]], new PerfLogFeatures(), {userMetrics: {'loadTime': 'time to load'}})
@@ -85,9 +72,9 @@ export function main() {
                {userMetrics: {'loadTime': 'time to load', 'content': 'time to see content'}});
            metric.beginMeasure()
                .then((_) => metric.endMeasure(true))
-               .then((values: any) => {
-                 expect(values.loadTime).toBe(25);
-                 expect(values.content).toBe(250);
+               .then((values: {[key: string]: string}) => {
+                 expect(values['loadTime']).toBe(25);
+                 expect(values['content']).toBe(250);
                  async.done();
                });
 
@@ -102,9 +89,6 @@ export function main() {
 
 class MockDriverAdapter extends WebDriverAdapter {
   data: any = {};
-  constructor(private _log: any[], private _events: any[], private _messageMethod: string) {
-    super();
-  }
 
   executeScript(script: string): any {
     // Just handles `return window.propName` ignores `delete window.propName`.
