@@ -84,7 +84,7 @@ export function main() {
                [[]], new PerfLogFeatures(),
                {userMetrics: {'loadTime': 'time to load', 'content': 'time to see content'}});
            metric.beginMeasure()
-               .then((_) => metric.endMeasure())
+               .then((_) => metric.endMeasure(true))
                .then((values: any) => {
                  expect(values.loadTime).toBe(25);
                  expect(values.content).toBe(250);
@@ -107,10 +107,15 @@ class MockDriverAdapter extends WebDriverAdapter {
   }
 
   executeScript(script: string): any {
-    // Just handles `return window.propName` scripts
-    if (!(/^return window\..*$/g).test(script)) {
-      return PromiseWrapper.reject(`Unexpected syntax: ${script}`);
+    // Just handles `return window.propName` scripts,
+    // and ignores `delete window.propName` scripts.
+    let returnGlobal = /^return window\.(\w+);?$/g.exec(script);
+    if (returnGlobal) {
+      return PromiseWrapper.resolve(this.data[returnGlobal[1]]);
+    } else if (/^delete window\.\w+;?$/g.test(script)) {
+      return PromiseWrapper.resolve(null);
+    } else {
+      return PromiseWrapper.reject(`Unexpected syntax: ${script}`, null);
     }
-    return PromiseWrapper.resolve(this.data[/^return window\.(.*)$/g.exec(script)[1]]);
   }
 }
