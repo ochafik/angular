@@ -67,9 +67,10 @@ export class UserMetric extends Metric {
    * (e.g. units, ...)
    */
   describe(): {[key: string]: any} {
-    return this._properties.reduce((prev, curr, i) => {
-      prev[curr.name] = curr.description;
-      return prev;
-    }, {});
+    var desc = {};
+    for (let prop of this._properties) {
+      desc[prop.name] = prop.description;
+    }
+    return desc;
   }
 }
