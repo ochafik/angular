@@ -11,6 +11,7 @@ import {
   xit
 } from 'angular2/testing_internal';
 
+import {TimerWrapper} from 'angular2/src/facade/async';
 import {StringMapWrapper} from 'angular2/src/facade/collection';
 import {PromiseWrapper} from 'angular2/src/facade/async';
 import {isPresent, isBlank, Json} from 'angular2/src/facade/lang';
@@ -92,7 +93,7 @@ export function main() {
 
            (<any>metric)._wdAdapter.data.loadTime = 25;
            // Wait before setting 2nd property.
-           setTimeout(() => { (<any>metric)._wdAdapter.data.content = 250; }, 50);
+           TimerWrapper.setTimeout(() => { (<any>metric)._wdAdapter.data.content = 250; }, 50);
 
          }), 600);
     });
@@ -107,7 +108,9 @@ class MockDriverAdapter extends WebDriverAdapter {
 
   executeScript(script: string): any {
     // Just handles `return window.propName` scripts
-    if (!(/^return window\..*$/g).test(script)) return;
-    return Promise.resolve(this.data[/^return window\.(.*)$/g.exec(script)[1]]);
+    if (!(/^return window\..*$/g).test(script)) {
+      return PromiseWrapper.reject(`Unexpected syntax: ${script}`);
+    }
+    return PromiseWrapper.resolve(this.data[/^return window\.(.*)$/g.exec(script)[1]]);
   }
 }

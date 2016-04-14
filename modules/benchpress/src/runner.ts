@@ -55,7 +55,7 @@ export class Runner {
     }
     if (isPresent(microMetrics)) {
       multiMetrics.push(PerflogMetric)
-      sampleBindings.push(bind(Options.MICRO_METRICS).toValue(microMetrics));
+          sampleBindings.push(bind(Options.MICRO_METRICS).toValue(microMetrics));
     }
     if (isPresent(bindings)) {
       sampleBindings.push(bindings);

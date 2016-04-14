@@ -36,16 +36,16 @@ export class UserMetric extends Metric {
   /**
    * Ends measuring.
    */
-  endMeasure(): Promise<{[key: string]: any}> {
+  endMeasure(restart: boolean): Promise<{[key: string]: any}> {
     let completer = PromiseWrapper.completer<{[key: string]: any}>();
     let adapter = this._wdAdapter;
     let names = this._properties.map((prop) => prop.name);
 
     function getAndClearValues() {
-      Promise.all(names.map(name => adapter.executeScript(`return window.${name}`)))
+      PromiseWrapper.all(names.map(name => adapter.executeScript(`return window.${name}`)))
           .then((values: any[]) => {
             if (values.every(isNumber)) {
-              Promise.all(names.map(name => adapter.executeScript(`delete window.${name}`)))
+              PromiseWrapper.all(names.map(name => adapter.executeScript(`delete window.${name}`)))
                   .then((_: any[]) => {
                     let map = StringMapWrapper.create();
                     for (let i = 0, n = names.length; i < n; i++) {
