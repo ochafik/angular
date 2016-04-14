@@ -1,6 +1,7 @@
 import {bind, Provider, OpaqueToken} from 'angular2/src/core/di';
 import {PromiseWrapper, TimerWrapper} from 'angular2/src/facade/async';
 import {StringMapWrapper} from 'angular2/src/facade/collection';
+import {isNumber} from 'angular2/src/facade/lang';
 import {BaseException} from "angular2/src/facade/exceptions";
 
 import {Metric} from '../metric';
@@ -42,10 +43,10 @@ export class UserMetric extends Metric {
 
     function getAndClearValues() {
       Promise.all(names.map(name => adapter.executeScript(`return window.${name}`)))
-          .then((values) => {
-            if (values.every(value => typeof value === 'number')) {
+          .then((values: any[]) => {
+            if (values.every(isNumber)) {
               Promise.all(names.map(name => adapter.executeScript(`delete window.${name}`)))
-                  .then((_) => {
+                  .then((_: any[]) => {
                     let map = StringMapWrapper.create();
                     for (let i = 0, n = names.length; i < n; i++) {
                       StringMapWrapper.set(map, names[i], values[i]);

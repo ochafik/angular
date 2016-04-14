@@ -42,7 +42,7 @@ export function main() {
                           captureFrames?: boolean,
                           receivedData?: boolean,
                           requestCount?: boolean
-                        } = {}) {
+                        } = {}): UserMetric {
     commandLog = [];
     if (isBlank(perfLogFeatures)) {
       perfLogFeatures =
@@ -79,12 +79,12 @@ export function main() {
     describe('endMeasure', () => {
       it('should stop measuring when all properties have numeric values',
          inject([AsyncTestCompleter], (async) => {
-           var metric = createMetric(
+           let metric = createMetric(
                [[]], new PerfLogFeatures(),
                {userMetrics: {'loadTime': 'time to load', 'content': 'time to see content'}});
            metric.beginMeasure()
                .then((_) => metric.endMeasure())
-               .then((values) => {
+               .then((values: any) => {
                  expect(values.loadTime).toBe(25);
                  expect(values.content).toBe(250);
                  async.done();
@@ -107,7 +107,7 @@ class MockDriverAdapter extends WebDriverAdapter {
 
   executeScript(script: string): any {
     // Just handles `return window.propName` scripts
-    if (!(/^return window\..*$/).test(script)) return;
-    return Promise.resolve(this.data[/^return window\.(.*)$/.exec(script)[1]]);
+    if (!(/^return window\..*$/g).test(script)) return;
+    return Promise.resolve(this.data[/^return window\.(.*)$/g.exec(script)[1]]);
   }
 }
