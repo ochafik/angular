@@ -18,15 +18,15 @@ import {
 } from 'angular2/testing_internal';
 
 import {By} from 'angular2/platform/common_dom';
+import {Location} from 'angular2/platform/common';
 import {NumberWrapper} from 'angular2/src/facade/lang';
 import {PromiseWrapper} from 'angular2/src/facade/async';
 import {ListWrapper} from 'angular2/src/facade/collection';
 
-import {provide, Component, DirectiveResolver} from 'angular2/core';
+import {provide, Component} from 'angular2/core';
 
 import {SpyLocation} from 'angular2/src/mock/location_mock';
 import {
-  Location,
   Router,
   RouteRegistry,
   RouterLink,
@@ -54,7 +54,6 @@ export function main() {
 
     beforeEachProviders(() => [
       RouteRegistry,
-      DirectiveResolver,
       provide(Location, {useClass: SpyLocation}),
       provide(ROUTER_PRIMARY_COMPONENT, {useValue: MyComp}),
       provide(Router, {useClass: RootRouter}),

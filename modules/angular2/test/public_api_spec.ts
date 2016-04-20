@@ -66,6 +66,7 @@ var NG_COMMON = [
   'NgFormControl',
   'NgFormModel',
   'NgIf',
+  'NgTemplateOutlet',
   'NgModel',
   'NgSelectOption',
   'NgStyle',
@@ -95,7 +96,6 @@ var NG_COMPILER = [
   "TemplateAstVisitor:dart",
   "DEFAULT_PACKAGE_URL_PROVIDER",
   "UrlResolver",
-  "getUrlScheme",
   "AttrAst",
   "BoundDirectivePropertyAst",
   "BoundElementPropertyAst",
@@ -113,14 +113,30 @@ var NG_COMPILER = [
   "PLATFORM_PIPES",
   "PropertyBindingType",
   "SourceModule",
-  "SourceWithImports",
   "TEMPLATE_TRANSFORMS",
-  "TemplateCompiler",
   "TextAst",
   "VariableAst",
   "XHR",
-  "createWithoutPackagePrefix",
-  "templateVisitAll"
+  "templateVisitAll",
+  "CompileDiDependencyMetadata",
+  "CompileFactoryMetadata",
+  "CompileIdentifierMetadata",
+  "CompileMetadataWithIdentifier",
+  "CompileMetadataWithType",
+  "CompilePipeMetadata",
+  "CompileProviderMetadata",
+  "CompileQueryMetadata",
+  "CompileTokenMetadata",
+  "CompilerConfig",
+  "RenderTypes",
+  "DirectiveResolver",
+  "NormalizedComponentWithViewDirectives",
+  "OfflineCompiler",
+  "PipeResolver",
+  "ProviderAst",
+  "ProviderAstType",
+  "ViewResolver",
+  "createOfflineCompileUrlResolver"
 ];
 
 var NG_CORE = [
@@ -139,7 +155,6 @@ var NG_CORE = [
   'ProviderBuilder',
   'PLATFORM_DIRECTIVES',
   "CollectionChangeRecord",
-  'ChangeDetectionError',
   'ChangeDetectionStrategy',
   'ChangeDetectorRef',
   'Class:js',
@@ -159,7 +174,6 @@ var NG_CORE = [
   'DependencyMetadata',
   'Directive',
   'DirectiveMetadata',
-  'DirectiveResolver',
   'DynamicComponentLoader',
   'ElementRef',
   'Output',
@@ -240,7 +254,6 @@ var NG_CORE = [
   'ViewMetadata',
   'ViewQuery',
   'ViewQueryMetadata',
-  'ViewResolver',
   'WrappedException',
   'WrappedValue',
   'asNativeElements',
@@ -299,6 +312,17 @@ var NG_PLATFORM_BROWSER = [
   'inspectNativeElement'
 ];
 
+var NG_PLATFORM_COMMON = [
+  'APP_BASE_HREF',
+  'HashLocationStrategy',
+  'Location',
+  'LocationStrategy',
+  'PathLocationStrategy',
+  'PlatformLocation',
+  'UrlChangeEvent:dart',
+  'UrlChangeListener:dart'
+];
+
 var NG_UPGRADE = [
   'UpgradeAdapter',
   'UpgradeAdapterRef',
@@ -310,6 +334,7 @@ var NG_API = {
   ngCore: NG_CORE,
   ngInstrumentation: NG_INSTRUMENTATION,
   ngPlatformBrowser: NG_PLATFORM_BROWSER,
+  ngPlatformCommon: NG_PLATFORM_COMMON,
   ngUpgrade: NG_UPGRADE
 };
 
@@ -324,8 +349,15 @@ export function main() {
    */
 
   describe('public API', () => {
-    var barrelList =
-        ['ngCommon', 'ngCompiler', 'ngCore', 'ngInstrumentation', 'ngPlatformBrowser', 'ngUpgrade'];
+    var barrelList = [
+      'ngCommon',
+      'ngCompiler',
+      'ngCore',
+      'ngInstrumentation',
+      'ngPlatformBrowser',
+      'ngPlatformCommon',
+      'ngUpgrade'
+    ];
 
     if (IS_DART) {
       barrelList = barrelList.filter(b => b !== 'ngUpgrade');

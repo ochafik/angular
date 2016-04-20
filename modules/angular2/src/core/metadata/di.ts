@@ -285,23 +285,78 @@ export class ViewQueryMetadata extends QueryMetadata {
 }
 
 /**
- * Configures a view query.
+ * Declares a list of child element references.
  *
- * View queries are set before the `ngAfterViewInit` callback is called.
+ * Angular automatically updates the list when the DOM is updated.
+ *
+ * `ViewChildren` takes an argument to select elements.
+ *
+ * - If the argument is a type, directives or components with the type will be bound.
+ *
+ * - If the argument is a string, the string is interpreted as a list of comma-separated selectors.
+ * For each selector, an element containing the matching template variable (e.g. `#child`) will be
+ * bound.
+ *
+ * View children are set before the `ngAfterViewInit` callback is called.
  *
  * ### Example
  *
+ * With type selector:
+ *
  * ```
  * @Component({
- *   selector: 'someDir',
- *   templateUrl: 'someTemplate',
- *   directives: [ItemDirective]
+ *   selector: 'child-cmp',
+ *   template: '<p>child</p>'
  * })
- * class SomeDir {
- *   @ViewChildren(ItemDirective) viewChildren: QueryList<ItemDirective>;
+ * class ChildCmp {
+ *   doSomething() {}
+ * }
+ *
+ * @Component({
+ *   selector: 'some-cmp',
+ *   template: `
+ *     <child-cmp></child-cmp>
+ *     <child-cmp></child-cmp>
+ *     <child-cmp></child-cmp>
+ *   `,
+ *   directives: [ChildCmp]
+ * })
+ * class SomeCmp {
+ *   @ViewChildren(ChildCmp) children:QueryList<ChildCmp>;
  *
  *   ngAfterViewInit() {
- *     // viewChildren is set
+ *     // children are set
+ *     this.children.toArray().forEach((child)=>child.doSomething());
+ *   }
+ * }
+ * ```
+ *
+ * With string selector:
+ *
+ * ```
+ * @Component({
+ *   selector: 'child-cmp',
+ *   template: '<p>child</p>'
+ * })
+ * class ChildCmp {
+ *   doSomething() {}
+ * }
+ *
+ * @Component({
+ *   selector: 'some-cmp',
+ *   template: `
+ *     <child-cmp #child1></child-cmp>
+ *     <child-cmp #child2></child-cmp>
+ *     <child-cmp #child3></child-cmp>
+ *   `,
+ *   directives: [ChildCmp]
+ * })
+ * class SomeCmp {
+ *   @ViewChildren('child1,child2,child3') children:QueryList<ChildCmp>;
+ *
+ *   ngAfterViewInit() {
+ *     // children are set
+ *     this.children.toArray().forEach((child)=>child.doSomething());
  *   }
  * }
  * ```
@@ -312,23 +367,71 @@ export class ViewChildrenMetadata extends ViewQueryMetadata {
 }
 
 /**
- * Configures a view query.
  *
- * View queries are set before the `ngAfterViewInit` callback is called.
+ * Declares a reference of child element.
+ *
+ * `ViewChildren` takes an argument to select elements.
+ *
+ * - If the argument is a type, a directive or a component with the type will be bound.
+ *
+ If the argument is a string, the string is interpreted as a selector. An element containing the
+ matching template variable (e.g. `#child`) will be bound.
+ *
+ * In either case, `@ViewChild()` assigns the first (looking from above) element if there are
+ multiple matches.
+ *
+ * View child is set before the `ngAfterViewInit` callback is called.
  *
  * ### Example
  *
+ * With type selector:
+ *
  * ```
  * @Component({
- *   selector: 'someDir',
- *   templateUrl: 'someTemplate',
- *   directives: [ItemDirective]
+ *   selector: 'child-cmp',
+ *   template: '<p>child</p>'
  * })
- * class SomeDir {
- *   @ViewChild(ItemDirective) viewChild:ItemDirective;
+ * class ChildCmp {
+ *   doSomething() {}
+ * }
+ *
+ * @Component({
+ *   selector: 'some-cmp',
+ *   template: '<child-cmp></child-cmp>',
+ *   directives: [ChildCmp]
+ * })
+ * class SomeCmp {
+ *   @ViewChild(ChildCmp) child:ChildCmp;
  *
  *   ngAfterViewInit() {
- *     // viewChild is set
+ *     // child is set
+ *     this.child.doSomething();
+ *   }
+ * }
+ * ```
+ *
+ * With string selector:
+ *
+ * ```
+ * @Component({
+ *   selector: 'child-cmp',
+ *   template: '<p>child</p>'
+ * })
+ * class ChildCmp {
+ *   doSomething() {}
+ * }
+ *
+ * @Component({
+ *   selector: 'some-cmp',
+ *   template: '<child-cmp #child></child-cmp>',
+ *   directives: [ChildCmp]
+ * })
+ * class SomeCmp {
+ *   @ViewChild('child') child:ChildCmp;
+ *
+ *   ngAfterViewInit() {
+ *     // child is set
+ *     this.child.doSomething();
  *   }
  * }
  * ```
