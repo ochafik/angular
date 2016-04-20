@@ -1,3 +1,4 @@
+import {ReflectiveInjector} from "angular2/core"; 
 import {
   afterEach,
   AsyncTestCompleter,
@@ -49,7 +50,7 @@ export function main() {
       MultiMetric.createBindings([UserMetric]),
       UserMetric.createBindings(userMetrics)
     ];
-    return Injector.resolveAndCreate(bindings).get(UserMetric);
+    return ReflectiveInjector.resolveAndCreate(bindings).get(UserMetric);
   }
 
   describe('user metric', () => {
@@ -88,9 +89,8 @@ class MockDriverAdapter extends WebDriverAdapter {
 
   executeScript(script: string): any {
     // Just handles `return window.propName` ignores `delete window.propName`.
-    let returnRegexp = /^return window\.(\w+);?$/g;
-    if (returnRegexp.test(script)) {
-      return PromiseWrapper.resolve(this.data[returnRegexp.exec(script)[1]]);
+    if (/^return window\.\w+;?$/g.test(script)) {
+      return PromiseWrapper.resolve(this.data[/^return window\.(\w+);?$/g.exec(script)[1]]);
     } else if (/^delete window\.\w+;?$/g.test(script)) {
       return PromiseWrapper.resolve(null);
     } else {
