@@ -31,14 +31,10 @@ import {
 } from 'benchpress/common';
 
 export function main() {
+  var wdAdapter: MockDriverAdapter;
+
   function createMetric(perfLogs, perfLogFeatures,
-                        {userMetrics, forceGc, captureFrames, receivedData, requestCount}: {
-                          userMetrics?: {[key: string]: string},
-                          forceGc?: boolean,
-                          captureFrames?: boolean,
-                          receivedData?: boolean,
-                          requestCount?: boolean
-                        } = {}): UserMetric {
+                        {userMetrics}: {userMetrics?: {[key: string]: string}} = {}): UserMetric {
     if (isBlank(perfLogFeatures)) {
       perfLogFeatures =
           new PerfLogFeatures({render: true, gc: true, frameCapture: true, userTiming: true});
@@ -46,8 +42,9 @@ export function main() {
     if (isBlank(userMetrics)) {
       userMetrics = StringMapWrapper.create();
     }
+    wdAdapter = new MockDriverAdapter();
     var bindings = [
-      provide(WebDriverAdapter, {useFactory: () => new MockDriverAdapter()}),
+      provide(WebDriverAdapter, {useValue: wdAdapter}),
       Options.DEFAULT_PROVIDERS,
       MultiMetric.createBindings([UserMetric]),
       UserMetric.createBindings(userMetrics)
@@ -65,7 +62,7 @@ export function main() {
 
     describe('endMeasure', () => {
       it('should stop measuring when all properties have numeric values',
-         inject([AsyncTestCompleter, WebDriverAdapter], (async, wdAdapter) => {
+         inject([AsyncTestCompleter], (async) => {
            let metric = createMetric(
                [[]], new PerfLogFeatures(),
                {userMetrics: {'loadTime': 'time to load', 'content': 'time to see content'}});
