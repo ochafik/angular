@@ -74,9 +74,9 @@ export function main() {
                  async.done();
                });
 
-           wdAdapter.data.loadTime = 25;
+           wdAdapter.data['loadTime'] = 25;
            // Wait before setting 2nd property.
-           TimerWrapper.setTimeout(() => { wdAdapter.data.content = 250; }, 50);
+           TimerWrapper.setTimeout(() => { wdAdapter.data['content'] = 250; }, 50);
 
          }), 600);
     });
