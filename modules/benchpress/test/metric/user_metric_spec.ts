@@ -88,9 +88,9 @@ class MockDriverAdapter extends WebDriverAdapter {
 
   executeScript(script: string): any {
     // Just handles `return window.propName` ignores `delete window.propName`.
-    let returnGlobal = /^return window\.(\w+);?$/g.exec(script);
-    if (returnGlobal) {
-      return PromiseWrapper.resolve(this.data[returnGlobal[1]]);
+    let returnRegexp = /^return window\.(\w+);?$/g;
+    if (returnRegexp.test(script)) {
+      return PromiseWrapper.resolve(this.data[returnRegexp.exec(script)[1]]);
     } else if (/^delete window\.\w+;?$/g.test(script)) {
       return PromiseWrapper.resolve(null);
     } else {
