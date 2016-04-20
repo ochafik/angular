@@ -1,4 +1,4 @@
-import {ReflectiveInjector} from "angular2/core"; 
+import {ReflectiveInjector} from "angular2/core";
 import {
   afterEach,
   AsyncTestCompleter,
