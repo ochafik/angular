@@ -31,7 +31,6 @@ import {
 } from 'benchpress/common';
 
 export function main() {
-
   function createMetric(perfLogs, perfLogFeatures,
                         {userMetrics, forceGc, captureFrames, receivedData, requestCount}: {
                           userMetrics?: {[key: string]: string},
@@ -66,7 +65,7 @@ export function main() {
 
     describe('endMeasure', () => {
       it('should stop measuring when all properties have numeric values',
-         inject([AsyncTestCompleter], (async) => {
+         inject([AsyncTestCompleter, WebDriverAdapter], (async, wdAdapter) => {
            let metric = createMetric(
                [[]], new PerfLogFeatures(),
                {userMetrics: {'loadTime': 'time to load', 'content': 'time to see content'}});
@@ -78,9 +77,9 @@ export function main() {
                  async.done();
                });
 
-           (<any>metric)._wdAdapter.data.loadTime = 25;
+           wdAdapter.data.loadTime = 25;
            // Wait before setting 2nd property.
-           TimerWrapper.setTimeout(() => { (<any>metric)._wdAdapter.data.content = 250; }, 50);
+           TimerWrapper.setTimeout(() => { wdAdapter.data.content = 250; }, 50);
 
          }), 600);
     });
